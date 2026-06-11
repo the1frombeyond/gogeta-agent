@@ -15977,7 +15977,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
 
             print(
 
-                "  curl -fsSL https://gogeta.ai/install.sh | bash"
+                "  curl -fsSL https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.sh | bash"
 
             )
 

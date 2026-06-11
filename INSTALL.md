@@ -5,13 +5,13 @@
 **Linux, macOS, WSL, Termux:**
 
 ```bash
-curl -fsSL https://gogeta.ai/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.sh | bash
 ```
 
 **Windows (PowerShell 5.1+):**
 
 ```powershell
-iex (irm https://gogeta.ai/install.ps1)
+iex (irm https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.ps1)
 ```
 
 The one-liner handles everything: Python provisioning (via `uv`), cloning the repo, installing dependencies, and registering the `gogeta` command.
@@ -19,15 +19,15 @@ The one-liner handles everything: Python provisioning (via `uv`), cloning the re
 ### Flags
 
 ```bash
-curl -fsSL https://gogeta.ai/install.sh | bash -s -- --no-venv     # global install (default)
-curl -fsSL https://gogeta.ai/install.sh | bash -s -- --skip-setup  # skip post-install wizard
-curl -fsSL https://gogeta.ai/install.sh | bash -s -- --branch dev  # specific branch
+curl -fsSL https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.sh | bash -s -- --no-venv     # global install (default)
+curl -fsSL https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.sh | bash -s -- --skip-setup  # skip post-install wizard
+curl -fsSL https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.sh | bash -s -- --branch dev  # specific branch
 ```
 
 Windows:
 
 ```powershell
-iex (irm https://gogeta.ai/install.ps1) -SkipSetup
+iex (irm https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.ps1) -SkipSetup
 ```
 
 ---
@@ -124,7 +124,7 @@ nix profile install github:the1frombeyond/gogeta-agent
 The PowerShell installer supports native Windows without WSL:
 
 ```powershell
-iex (irm https://gogeta.ai/install.ps1)
+iex (irm https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.ps1)
 ```
 
 It provisions `uv` for fast Python management and installs everything under `%LOCALAPPDATA%\gogeta\`. The `gogeta` command is added to your user PATH.

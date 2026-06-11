@@ -9,13 +9,13 @@ A 15-minute walkthrough from install to your first real workflow.
 Open a terminal and run:
 
 ```bash
-curl -fsSL https://gogeta.ai/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.sh | bash
 ```
 
 Windows (PowerShell):
 
 ```powershell
-iex (irm https://gogeta.ai/install.ps1)
+iex (irm https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.ps1)
 ```
 
 That's it. The installer grabs Python + uv if needed, clones the repo, and puts `gogeta` on your path.
@@ -126,4 +126,4 @@ Your agent is now reachable from those platforms. One daemon, all platforms.
 - `gogeta skills create` — write your own skill
 - `gogeta plugin list` — check installed plugins
 - [INSTALL.md](INSTALL.md) — detailed install options
-- [gogeta.ai/docs](https://gogeta.ai/docs/) — full documentation
+- [github.com/the1frombeyond/gogeta-agent](https://github.com/the1frombeyond/gogeta-agent) — source code

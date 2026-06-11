@@ -12,11 +12,11 @@
 ```
 
 <p align="center">
-  <strong>v3.0 — The Self-Improving AI Agent by <a href="https://gogeta.ai">the1frombeyond</a></strong>
+  <strong>v3.0 — The Self-Improving AI Agent by <a href="https://github.com/the1frombeyond">the1frombeyond</a></strong>
 </p>
 
 <p align="center">
-  <a href="https://gogeta.ai/docs/"><img src="https://img.shields.io/badge/Docs-Full%20Documentation-FFD700?style=flat-square" alt="Documentation"></a>
+  <a href="https://github.com/the1frombeyond/gogeta-agent"><img src="https://img.shields.io/badge/Docs-GitHub-FFD700?style=flat-square" alt="Documentation"></a>
   <a href="https://github.com/the1frombeyond/gogeta-agent"><img src="https://img.shields.io/badge/Source-GitHub-181717?style=flat-square&logo=github" alt="GitHub"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License: MIT"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=flat-square" alt="中文"></a>
@@ -89,10 +89,10 @@ gogeta doctor           # Diagnose config issues
 
 ```bash
 # Linux, macOS, WSL
-curl -fsSL https://gogeta.ai/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.sh | bash
 
 # Windows (PowerShell)
-iex (irm https://gogeta.ai/install.ps1)
+iex (irm https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.ps1)
 
 # pip
 pip install gogeta-agent[all]
@@ -234,7 +234,7 @@ gogeta plugin install <name>  # Install a plugin
 
 ## Community & Contributing
 
-- **Docs** — [gogeta.ai/docs](https://gogeta.ai/docs/)
+- **Docs** — [github.com/the1frombeyond/gogeta-agent](https://github.com/the1frombeyond/gogeta-agent)
 - **GitHub** — [github.com/the1frombeyond/gogeta-agent](https://github.com/the1frombeyond/gogeta-agent)
 - **Issues** — [github.com/the1frombeyond/gogeta-agent/issues](https://github.com/the1frombeyond/gogeta-agent/issues)
 - **Skills Hub** — [agentskills.io](https://agentskills.io)
@@ -256,4 +256,4 @@ scripts/run_tests.sh
 
 MIT — see [LICENSE](LICENSE).
 
-Built by **[the1frombeyond](https://gogeta.ai)**.
+Built by **[the1frombeyond](https://github.com/the1frombeyond)**.

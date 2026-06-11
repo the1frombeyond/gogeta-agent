@@ -1736,11 +1736,11 @@ def _perform_uninstall(
 
         if _is_windows():
 
-            print(color("  iex (irm https://gogeta.ai/install.ps1)", Colors.DIM))
+            print(color("  iex (irm https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.ps1)", Colors.DIM))
 
         else:
 
-            print(color("  curl -fsSL https://gogeta.ai/install.sh | bash", Colors.DIM))
+            print(color("  curl -fsSL https://raw.githubusercontent.com/the1frombeyond/gogeta-agent/main/install.sh | bash", Colors.DIM))
 
         print()
 
