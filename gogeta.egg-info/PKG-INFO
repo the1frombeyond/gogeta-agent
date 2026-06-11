@@ -1,0 +1,415 @@
+Metadata-Version: 2.4
+Name: gogeta
+Version: 0.16.0
+Summary: The self-improving AI agent — creates skills from experience, improves them during use, and runs anywhere
+Author: the1frombeyond
+License-Expression: MIT
+Requires-Python: <3.14,>=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: openai==2.24.0
+Requires-Dist: python-dotenv==1.2.2
+Requires-Dist: fire==0.7.1
+Requires-Dist: httpx[socks]==0.28.1
+Requires-Dist: rich==14.3.3
+Requires-Dist: tenacity==9.1.4
+Requires-Dist: pyyaml==6.0.3
+Requires-Dist: ruamel.yaml==0.18.17
+Requires-Dist: requests==2.33.0
+Requires-Dist: jinja2==3.1.6
+Requires-Dist: pydantic==2.13.4
+Requires-Dist: prompt_toolkit==3.0.52
+Requires-Dist: croniter==6.0.0
+Requires-Dist: Markdown==3.10.2
+Requires-Dist: PyJWT[crypto]==2.12.1
+Requires-Dist: tzdata==2025.3; sys_platform == "win32"
+Requires-Dist: psutil==7.2.2
+Requires-Dist: pathspec==1.1.1
+Requires-Dist: fastapi<1,>=0.104.0
+Requires-Dist: uvicorn[standard]<1,>=0.24.0
+Requires-Dist: ptyprocess<1,>=0.7.0; sys_platform != "win32"
+Requires-Dist: pywinpty<3,>=2.0.0; sys_platform == "win32"
+Requires-Dist: Pillow==12.2.0
+Provides-Extra: anthropic
+Requires-Dist: anthropic==0.86.0; extra == "anthropic"
+Provides-Extra: exa
+Requires-Dist: exa-py==2.10.2; extra == "exa"
+Provides-Extra: firecrawl
+Requires-Dist: firecrawl-py==4.17.0; extra == "firecrawl"
+Provides-Extra: parallel-web
+Requires-Dist: parallel-web==0.4.2; extra == "parallel-web"
+Provides-Extra: fal
+Requires-Dist: fal-client==0.13.1; extra == "fal"
+Provides-Extra: edge-tts
+Requires-Dist: edge-tts==7.2.7; extra == "edge-tts"
+Provides-Extra: modal
+Requires-Dist: modal==1.3.4; extra == "modal"
+Provides-Extra: daytona
+Requires-Dist: daytona==0.155.0; extra == "daytona"
+Provides-Extra: hindsight
+Requires-Dist: hindsight-client==0.6.1; extra == "hindsight"
+Provides-Extra: dev
+Requires-Dist: debugpy==1.8.20; extra == "dev"
+Requires-Dist: pytest==9.0.2; extra == "dev"
+Requires-Dist: pytest-asyncio==1.3.0; extra == "dev"
+Requires-Dist: pytest-timeout==2.4.0; extra == "dev"
+Requires-Dist: mcp==1.26.0; extra == "dev"
+Requires-Dist: starlette==1.0.1; extra == "dev"
+Requires-Dist: ty==0.0.21; extra == "dev"
+Requires-Dist: ruff==0.15.10; extra == "dev"
+Requires-Dist: setuptools==82.0.1; extra == "dev"
+Provides-Extra: messaging
+Requires-Dist: python-telegram-bot[webhooks]==22.6; extra == "messaging"
+Requires-Dist: discord.py[voice]==2.7.1; extra == "messaging"
+Requires-Dist: aiohttp==3.13.3; extra == "messaging"
+Requires-Dist: brotlicffi==1.2.0.1; extra == "messaging"
+Requires-Dist: slack-bolt==1.27.0; extra == "messaging"
+Requires-Dist: slack-sdk==3.40.1; extra == "messaging"
+Requires-Dist: qrcode==7.4.2; extra == "messaging"
+Provides-Extra: cron
+Provides-Extra: slack
+Requires-Dist: slack-bolt==1.27.0; extra == "slack"
+Requires-Dist: slack-sdk==3.40.1; extra == "slack"
+Requires-Dist: aiohttp==3.13.3; extra == "slack"
+Provides-Extra: matrix
+Requires-Dist: mautrix[encryption]==0.21.0; extra == "matrix"
+Requires-Dist: aiosqlite==0.22.1; extra == "matrix"
+Requires-Dist: asyncpg==0.31.0; extra == "matrix"
+Requires-Dist: aiohttp-socks==0.11.0; extra == "matrix"
+Provides-Extra: wecom
+Requires-Dist: defusedxml==0.7.1; extra == "wecom"
+Provides-Extra: cli
+Requires-Dist: simple-term-menu==1.6.6; extra == "cli"
+Provides-Extra: tts-premium
+Requires-Dist: elevenlabs==1.59.0; extra == "tts-premium"
+Provides-Extra: voice
+Requires-Dist: faster-whisper==1.2.1; extra == "voice"
+Requires-Dist: sounddevice==0.5.5; extra == "voice"
+Requires-Dist: numpy==2.4.3; extra == "voice"
+Provides-Extra: pty
+Provides-Extra: honcho
+Requires-Dist: honcho-ai==2.0.1; extra == "honcho"
+Provides-Extra: vision
+Provides-Extra: mcp
+Requires-Dist: mcp==1.26.0; extra == "mcp"
+Requires-Dist: starlette==1.0.1; extra == "mcp"
+Provides-Extra: nemo-relay
+Requires-Dist: nemo-relay==0.3; extra == "nemo-relay"
+Provides-Extra: homeassistant
+Requires-Dist: aiohttp==3.13.3; extra == "homeassistant"
+Provides-Extra: sms
+Requires-Dist: aiohttp==3.13.3; extra == "sms"
+Provides-Extra: computer-use
+Requires-Dist: mcp==1.26.0; extra == "computer-use"
+Requires-Dist: starlette==1.0.1; extra == "computer-use"
+Provides-Extra: acp
+Requires-Dist: agent-client-protocol==0.9.0; extra == "acp"
+Provides-Extra: mistral
+Requires-Dist: mistralai==2.4.8; extra == "mistral"
+Provides-Extra: bedrock
+Requires-Dist: boto3==1.42.89; extra == "bedrock"
+Provides-Extra: azure-identity
+Requires-Dist: azure-identity==1.25.3; extra == "azure-identity"
+Provides-Extra: termux
+Requires-Dist: python-telegram-bot[webhooks]==22.6; extra == "termux"
+Requires-Dist: gogeta-agent[cron]; extra == "termux"
+Requires-Dist: gogeta-agent[cli]; extra == "termux"
+Requires-Dist: gogeta-agent[pty]; extra == "termux"
+Requires-Dist: gogeta-agent[mcp]; extra == "termux"
+Requires-Dist: gogeta-agent[honcho]; extra == "termux"
+Requires-Dist: gogeta-agent[acp]; extra == "termux"
+Provides-Extra: termux-all
+Requires-Dist: gogeta-agent[termux]; extra == "termux-all"
+Requires-Dist: gogeta-agent[google]; extra == "termux-all"
+Requires-Dist: gogeta-agent[homeassistant]; extra == "termux-all"
+Requires-Dist: gogeta-agent[sms]; extra == "termux-all"
+Requires-Dist: gogeta-agent[web]; extra == "termux-all"
+Provides-Extra: dingtalk
+Requires-Dist: dingtalk-stream==0.24.3; extra == "dingtalk"
+Requires-Dist: alibabacloud-dingtalk==2.2.42; extra == "dingtalk"
+Requires-Dist: qrcode==7.4.2; extra == "dingtalk"
+Provides-Extra: feishu
+Requires-Dist: lark-oapi==1.5.3; extra == "feishu"
+Requires-Dist: qrcode==7.4.2; extra == "feishu"
+Provides-Extra: google
+Requires-Dist: google-api-python-client==2.194.0; extra == "google"
+Requires-Dist: google-auth-oauthlib==1.3.1; extra == "google"
+Requires-Dist: google-auth-httplib2==0.3.1; extra == "google"
+Provides-Extra: youtube
+Requires-Dist: youtube-transcript-api==1.2.4; extra == "youtube"
+Provides-Extra: web
+Requires-Dist: fastapi==0.133.1; extra == "web"
+Requires-Dist: uvicorn[standard]==0.41.0; extra == "web"
+Requires-Dist: starlette==1.0.1; extra == "web"
+Provides-Extra: all
+Requires-Dist: gogeta-agent[cron]; extra == "all"
+Requires-Dist: gogeta-agent[cli]; extra == "all"
+Requires-Dist: gogeta-agent[pty]; extra == "all"
+Requires-Dist: gogeta-agent[mcp]; extra == "all"
+Requires-Dist: gogeta-agent[homeassistant]; extra == "all"
+Requires-Dist: gogeta-agent[sms]; extra == "all"
+Requires-Dist: gogeta-agent[acp]; extra == "all"
+Requires-Dist: gogeta-agent[google]; extra == "all"
+Requires-Dist: gogeta-agent[web]; extra == "all"
+Requires-Dist: gogeta-agent[youtube]; extra == "all"
+Dynamic: license-file
+
+<p align="center">
+  <img src="assets/banner.png" alt="GOGETA" width="100%">
+</p>
+
+```
+ ██████╗  ██████╗  ██████╗ ███████╗████████╗ █████╗ 
+██╔════╝ ██╔═══██╗██╔════╝ ██╔════╝╚══██╔══╝██╔══██╗
+██║  ███╗██║   ██║██║  ███╗█████╗     ██║   ███████║
+██║   ██║██║   ██║██║   ██║██╔══╝     ██║   ██╔══██║
+╚██████╔╝╚██████╔╝╚██████╔╝███████╗   ██║   ██║  ██║
+ ╚═════╝  ╚═════╝  ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝
+```
+
+<p align="center">
+  <strong>v3.0 — The Self-Improving AI Agent by <a href="https://gogeta.ai">the1frombeyond</a></strong>
+</p>
+
+<p align="center">
+  <a href="https://gogeta.ai/docs/"><img src="https://img.shields.io/badge/Docs-Full%20Documentation-FFD700?style=flat-square" alt="Documentation"></a>
+  <a href="https://github.com/the1frombeyond/gogeta-agent"><img src="https://img.shields.io/badge/Source-GitHub-181717?style=flat-square&logo=github" alt="GitHub"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License: MIT"></a>
+  <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=flat-square" alt="中文"></a>
+</p>
+
+---
+
+**GOGETA** is a self-improving AI agent that learns from experience and gets better the more you use it. It runs on a $5 VPS or a GPU cluster, works with any LLM provider, and you can talk to it from your terminal, Telegram, Discord, Slack, or a browser. One process, all platforms. It doesn't change when you change seats.
+
+---
+
+## Why GOGETA
+
+Most agents are stateless helpers. You start a session, ask a question, and everything you taught them vanishes when you close the terminal. GOGETA keeps what it learns.
+
+- **Closed-loop learning.** It creates skills from experience, improves them during use, and carries context across sessions. Over time it builds a real model of how you work.
+- **Multi-platform by default.** One gateway process serves Telegram, Discord, Slack, WhatsApp, Signal, Matrix, email, SMS, and more. You talk to the same agent everywhere.
+- **Provider-agnostic.** Bring your own model — OpenAI, Anthropic, Google, xAI, DeepSeek, OpenRouter, local models, 200+ endpoints. Switch mid-conversation with `/model`.
+- **Runs anywhere.** Six terminal backends — local, Docker, SSH, Modal, Daytona, Singularity. Serverless backends hibernate when idle so you're not paying for nothing.
+- **Extensible.** Skills, plugins, MCP servers, and an SDK for custom tools and providers.
+
+---
+
+## Core Features
+
+| Capability | What it does |
+|---|---|
+| **CLI** | Rich terminal with autocomplete, skin engine, streaming tool output |
+| **TUI** | React terminal UI with multiline editing, slash commands, session picker (`gogeta --tui`) |
+| **Gateway** | Single daemon that bridges your agent to 15+ messaging platforms |
+| **Skills** | Procedural memory as markdown — agent-authored, auto-improving, searchable |
+| **Genome** | Experience-to-behavior learning pipeline — discovers patterns from how you work |
+| **Lifeline** | Persistent identity (SOUL.md, session summaries, reflections, timeline) |
+| **Plugins** | Memory backends, model providers, context engines, custom hooks |
+| **Memory** | Pluggable backends (Honcho, Mem0, Supermemory, Hindsight, and more) |
+| **Kanban** | Multi-agent work queue with SQLite boards, dispatcher, cross-profile collaboration |
+| **Cron** | Natural-language scheduling — "every day at 9am" works. Multi-platform delivery. |
+| **Tools** | 80+ built-in: terminal, files, web search, browser automation, vision, code execution |
+| **Delegation** | Spawn isolated subagents for parallel work. Orchestrators can delegate recursively. |
+| **Profiles** | Fully isolated instances — separate config, keys, memory, sessions per profile |
+| **Dashboard** | Browser-based web dashboard with embedded TUI, session management, tool config |
+
+---
+
+## Quick Start
+
+```bash
+gogeta                  # Start chatting immediately
+gogeta model            # Choose your LLM provider and model
+gogeta tools            # Configure which tools are enabled
+gogeta gateway          # Start Telegram, Discord, etc.
+gogeta --tui            # React terminal UI
+gogeta setup            # Guided setup wizard
+gogeta doctor           # Diagnose config issues
+```
+
+### In conversation
+
+```
+/model openai:gpt-4o                              # Switch models mid-chat
+/skills install official/github/pr-review          # Install a skill
+/cron add "every day at 9am" "send me a summary"  # Schedule a job
+/compress                                          # Compact context
+/insights --days 30                                # Recent session review
+```
+
+---
+
+## Installation
+
+```bash
+# Linux, macOS, WSL
+curl -fsSL https://gogeta.ai/install.sh | bash
+
+# Windows (PowerShell)
+iex (irm https://gogeta.ai/install.ps1)
+
+# pip
+pip install gogeta-agent[all]
+
+# Docker
+docker pull ghcr.io/the1frombeyond/gogeta-agent:latest
+
+# Homebrew
+brew install gogeta-agent
+
+# Nix
+nix run github:the1frombeyond/gogeta-agent
+```
+
+See [INSTALL.md](INSTALL.md) for every method and flag.
+
+---
+
+## Provider Support
+
+GOGETA works with any OpenAI-compatible endpoint plus native integrations:
+
+Nous Portal (300+ models), OpenRouter (200+), OpenAI, Anthropic, Google, xAI, DeepSeek, Mistral, AWS Bedrock, Azure, NVIDIA NIM, Hugging Face, MiniMax, NovitaAI, Ollama, and any custom endpoint.
+
+Switch with `/model provider:model-name` mid-conversation. No restarts.
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                          GOGETA                                      │
+│                                                                      │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  ┌─────────────┐ │
+│  │   CLI     │  │   TUI    │  │    Gateway        │  │   Dashboard  │ │
+│  │ (rich)    │  │ (Ink)    │  │ (Telegram/Discord │  │ (Browser)    │ │
+│  │           │  │          │  │  /Slack/WhatsApp  │  │             │ │
+│  └─────┬─────┘  └────┬─────┘  └────────┬─────────┘  └──────┬──────┘ │
+│        └──────────────┴─────────────────┴──────────────────┘        │
+│                                   │                                 │
+│                    ┌──────────────┴──────────────┐                  │
+│                    │      AIAgent (run_agent.py)  │                  │
+│                    │  ┌────────────────────────┐ │                  │
+│                    │  │ Conversation Loop      │ │                  │
+│                    │  │ Tool Orchestration     │ │                  │
+│                    │  │ Budget Tracking        │ │                  │
+│                    │  └────────────────────────┘ │                  │
+│                    └──────────────┬──────────────┘                  │
+│                                   │                                 │
+│  ┌───────┐  ┌────────┐  ┌───────┴──────┐  ┌───────┐  ┌──────────┐ │
+│  │ Tools │  │ Skills │  │  Providers   │  │Memory │  │  Plugins  │ │
+│  │(80+)  │  │ System │  │(OpenAI/Ant..)│  │Backend│  │  System   │ │
+│  └───────┘  └────────┘  └──────────────┘  └───────┘  └──────────┘ │
+│                                                                      │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────────────────┐ │
+│  │  Cron    │  │  Kanban  │  │  Genome  │  │  Lifeline            │ │
+│  │ Scheduler│  │ WorkQueue│  │ Learning │  │  (SOUL.md/Identity) │ │
+│  └──────────┘  └──────────┘  └──────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+The core loop is synchronous with interrupt checking, budget tracking, and a one-turn grace call. Tools are auto-discovered via registry and grouped into toolsets per platform. The gateway runs as a daemon that dispatches messages from any platform to the same AIAgent instance.
+
+---
+
+## Skills
+
+Skills are markdown files with frontmatter, prerequisites, procedures, and verification criteria. They're procedural memory — the agent reads them and follows the steps.
+
+**Built-in:** `skills/` — always loadable. GitHub, MLOps, DevOps, Security, Creative, and more.
+
+**Optional:** `optional-skills/` — shipped but not active by default. Autonomous agents, blockchain, communication, productivity, research, security.
+
+Skills can be authored by the agent itself after complex tasks (auto-improving via the Curator), installed from the [Skills Hub](https://agentskills.io), created manually in `~/.gogeta/skills/`, or shared via the open agentskills.io standard.
+
+```bash
+gogeta skills list                     # Show installed skills
+gogeta skills install official/<cat>/<name>  # Install from hub
+gogeta skills create                   # Create a skill
+gogeta curator status                  # Check curator state
+```
+
+---
+
+## TUI
+
+The TUI is a full React terminal application with chat streaming, tool activity feed, approval prompts, session picker, slash command autocomplete, and theming.
+
+```bash
+gogeta --tui
+```
+
+Architecture: TypeScript owns the screen (Ink), Python owns sessions, tools, and model calls. They talk over JSON-RPC over stdio.
+
+The same TUI is embedded in the browser dashboard via PTY bridge — the Ink app runs inside an xterm.js terminal.
+
+---
+
+## Lifeline
+
+Persistent identity and session memory:
+
+- **SOUL.md** — core identity: name, purpose, principles, behavioral constraints
+- **SESSION_SUMMARY.md** — compressed session summaries
+- **REFLECTIONS/** — episodic memory at key decision points
+- **Timeline** — structured records of build decisions, failures, recoveries
+
+---
+
+## Genome
+
+The experience-to-behavior learning pipeline: pattern detection, workflow discovery, skill evolution, failure learning, confidence scoring, and dependency graph generation.
+
+```python
+from gogeta.genome import GenomeManager
+gm = GenomeManager()
+gm.learn()    # run the pipeline
+gm.report()   # write genome.md
+```
+
+---
+
+## Plugins
+
+Two plugin surfaces:
+
+1. **General plugins** — lifecycle hooks, custom tools, CLI subcommands, dashboard widgets
+2. **Memory-provider plugins** — pluggable backends implementing the MemoryProvider ABC
+
+Model-provider plugins are a separate lazy-discovery system. Each provider (OpenRouter, Anthropic, Gemini, etc.) ships as a plugin that registers a ProviderProfile.
+
+```bash
+gogeta plugin list         # List installed plugins
+gogeta plugin install <name>  # Install a plugin
+```
+
+---
+
+## Community & Contributing
+
+- **Docs** — [gogeta.ai/docs](https://gogeta.ai/docs/)
+- **GitHub** — [github.com/the1frombeyond/gogeta-agent](https://github.com/the1frombeyond/gogeta-agent)
+- **Issues** — [github.com/the1frombeyond/gogeta-agent/issues](https://github.com/the1frombeyond/gogeta-agent/issues)
+- **Skills Hub** — [agentskills.io](https://agentskills.io)
+
+### Development
+
+```bash
+git clone https://github.com/the1frombeyond/gogeta-agent.git
+cd gogeta-agent
+uv pip install -e ".[all,dev]"
+scripts/run_tests.sh
+```
+
+~17,000 tests across ~900 files. All tests run in isolated subprocesses for CI parity. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+Built by **[the1frombeyond](https://gogeta.ai)**.

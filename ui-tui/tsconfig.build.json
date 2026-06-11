@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@gogeta/ink": ["src/types/gogeta-ink.d.ts"]
+    }
+  }
+}

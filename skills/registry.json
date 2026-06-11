@@ -1,0 +1,502 @@
+{
+  "version": 2,
+  "registries": {
+    "builtin": {
+      "name": "Built-in Skills",
+      "url": null,
+      "enabled": true
+    },
+    "community": {
+      "name": "JARVIS Community Skills",
+      "url": "https://raw.githubusercontent.com/the1frombeyond/jarvis-skills/main/registry.json",
+      "enabled": false
+    },
+    "skills_sh": {
+      "name": "Skills.sh",
+      "url": "https://skills.sh/api/v1/skills",
+      "enabled": false
+    }
+  },
+  "categories": [
+    {
+      "id": "browser",
+      "name": "Browser & Web",
+      "icon": "🌐"
+    },
+    {
+      "id": "development",
+      "name": "Development",
+      "icon": "💻"
+    },
+    {
+      "id": "ai",
+      "name": "AI & LLM",
+      "icon": "🤖"
+    },
+    {
+      "id": "productivity",
+      "name": "Productivity",
+      "icon": "⚡"
+    },
+    {
+      "id": "system",
+      "name": "System & Hardware",
+      "icon": "🖥️"
+    },
+    {
+      "id": "knowledge",
+      "name": "Knowledge & Memory",
+      "icon": "🧠"
+    },
+    {
+      "id": "voice",
+      "name": "Voice & Audio",
+      "icon": "🎙️"
+    },
+    {
+      "id": "files",
+      "name": "Files & Documents",
+      "icon": "📁"
+    },
+    {
+      "id": "network",
+      "name": "Network & Connectivity",
+      "icon": "🔗"
+    },
+    {
+      "id": "media",
+      "name": "Media & Images",
+      "icon": "🎨"
+    },
+    {
+      "id": "automation",
+      "name": "Automation",
+      "icon": "🔄"
+    },
+    {
+      "id": "data",
+      "name": "Data & Analysis",
+      "icon": "📊"
+    }
+  ],
+  "skills": [
+    {
+      "id": "agent_browser",
+      "name": "Agent Browser",
+      "description": "Deterministic browser automation with reference-based interactions (@e1, @e2) and multi-session isolation",
+      "category": "browser",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["open browser", "click element", "fill form", "navigate to", "browse page", "snapshot page"],
+      "files": ["agent_browser_skill/SKILL.md", "agent_browser_skill/agent_browser.py"],
+      "installed": true
+    },
+    {
+      "id": "browser_harness",
+      "name": "Browser Harness",
+      "description": "Advanced CDP-based browser control with self-improving helpers and site-specific domain skills",
+      "category": "browser",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["cdp connect", "complex browser interaction", "site helper", "domain skill"],
+      "files": ["browser_harness_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "browser_use",
+      "name": "Browser Use",
+      "description": "Autonomous web intelligence agent for searching, browsing, and extracting content safely",
+      "category": "browser",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["search google", "research topic", "extract content", "web agent", "scrape page"],
+      "files": ["browser_use_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "web_search",
+      "name": "Web Search",
+      "description": "High-speed web search for real-time information, news, and facts using local intelligence",
+      "category": "browser",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["search web", "find information", "lookup", "news search", "real-time query"],
+      "files": ["web_search_skill/SKILL.md", "web_search_skill/web_search.py"],
+      "installed": true
+    },
+    {
+      "id": "web_browser",
+      "name": "Web Browser",
+      "description": "General-purpose web browsing and page interaction via Playwright",
+      "category": "browser",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["web page", "load url", "http request", "fetch content"],
+      "files": ["web_browser.py"],
+      "installed": true
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "description": "Integrated GitHub management using gh CLI for PRs, issues, repos, and workflow monitoring",
+      "category": "development",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["github", "pr checks", "run list", "issue status", "git workflow", "repo"],
+      "files": ["github_skill/SKILL.md", "github_skill/github_skill.py"],
+      "installed": true
+    },
+    {
+      "id": "mcp_builder",
+      "name": "MCP Builder",
+      "description": "Guide and automation for creating high-quality MCP servers with local app scanning",
+      "category": "development",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["build mcp", "mcp server", "create tool", "scan app", "model context protocol"],
+      "files": ["mcp_builder_skill/SKILL.md", "mcp_builder_skill/mcp_scanner.py"],
+      "installed": true
+    },
+    {
+      "id": "skill_creator",
+      "name": "Skill Creator",
+      "description": "Comprehensive guidance for creating, validating, and packaging standardized JARVIS skills",
+      "category": "development",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["create skill", "package skill", "validate skill", "skill template"],
+      "files": ["skill_creator_skill/SKILL.md", "skill_creator_skill/scripts/init_skill.py"],
+      "installed": true
+    },
+    {
+      "id": "skill_stealer",
+      "name": "Skill Stealer",
+      "description": "Autonomous skill acquisition — discovers and imports capabilities from other AI platforms",
+      "category": "development",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["import skill", "steal skill", "convert skill", "discover capability", "clone agent"],
+      "files": ["skill_stealer_skill/SKILL.md", "skill_stealer_skill/skill_stealer.py"],
+      "installed": true
+    },
+    {
+      "id": "code_executor",
+      "name": "Code Executor",
+      "description": "Safe execution of Python, JavaScript, shell commands in sandboxed environment",
+      "category": "development",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["run code", "execute script", "eval python", "run javascript", "shell command"],
+      "files": ["code_executor_skill/SKILL.md", "code_executor_skill/executor.py"],
+      "installed": true
+    },
+    {
+      "id": "ai_reasoning",
+      "name": "AI Reasoning",
+      "description": "Direct access to local LLM intelligence for pure reasoning, brainstorming, and creative tasks",
+      "category": "ai",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["reason", "brainstorm", "think", "analyze", "creative", "ideate"],
+      "files": ["ai_reasoning_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "self_improvement",
+      "name": "Self Improvement",
+      "description": "Continuous learning loop that captures insights, errors, and feature requests to evolve JARVIS",
+      "category": "ai",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["learn from error", "improve", "self evolve", "capture insight", "log correction"],
+      "files": ["self_improvement_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "file_learner",
+      "name": "File Learner",
+      "description": "Analyzes workspace files to extract coding patterns, project structures, and style conventions",
+      "category": "ai",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["scan project", "analyze file", "learn pattern", "infer style", "study codebase"],
+      "files": ["file_learner_skill/SKILL.md", "file_learner_skill/file_learner.py"],
+      "installed": true
+    },
+    {
+      "id": "notes",
+      "name": "Notes",
+      "description": "Persistent digital journaling and note-taking system for thoughts, tasks, and summaries",
+      "category": "productivity",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["take note", "append note", "read note", "journal", "diary entry", "remind me"],
+      "files": ["notes_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "gog",
+      "name": "Google Services",
+      "description": "Unified Google Services: Gmail, Calendar, Drive, Contacts, Sheets, Docs",
+      "category": "productivity",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["gmail", "calendar", "google drive", "google sheets", "google docs", "contacts"],
+      "files": ["gog_skill/SKILL.md", "gog_skill/gog.py"],
+      "installed": true
+    },
+    {
+      "id": "file_manager",
+      "name": "File Manager",
+      "description": "Intelligent local file management for organizing, reading, and moving documents",
+      "category": "files",
+      "version": "1.1.0",
+      "author": "JARVIS Core",
+      "triggers": ["list files", "read file", "organize folder", "move document", "rename", "delete file"],
+      "files": ["file_manager_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "docx_handler",
+      "name": "DOCX Handler",
+      "description": "Create, read, edit Word documents with formatting and templates",
+      "category": "files",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["word document", "docx", "create doc", "edit document", "word file"],
+      "files": ["docx_handler.py"],
+      "installed": true
+    },
+    {
+      "id": "pptx_handler",
+      "name": "PPTX Handler",
+      "description": "Create and edit PowerPoint presentations with slides, charts, and formatting",
+      "category": "files",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["powerpoint", "presentation", "create slides", "pptx", "slide deck"],
+      "files": ["pptx_handler.py"],
+      "installed": true
+    },
+    {
+      "id": "screen_reader",
+      "name": "Screen Reader",
+      "description": "Vision-powered screen reading and OCR for extracting text from screen regions",
+      "category": "system",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["read screen", "ocr region", "extract text from screen", "what's on screen"],
+      "files": ["screen_reader.py"],
+      "installed": true
+    },
+    {
+      "id": "desktop_control",
+      "name": "Desktop Control",
+      "description": "Mouse, keyboard, and window automation for desktop control",
+      "category": "system",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["move mouse", "click", "type text", "press key", "control window", "automate desktop"],
+      "files": ["desktop_control.py"],
+      "installed": true
+    },
+    {
+      "id": "system_info",
+      "name": "System Info",
+      "description": "Retrieve detailed system information: CPU, RAM, disk, OS, hardware, processes",
+      "category": "system",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["system info", "cpu usage", "memory", "disk space", "hardware", "os version"],
+      "files": ["system_info.py"],
+      "installed": true
+    },
+    {
+      "id": "system_control",
+      "name": "System Control",
+      "description": "System power management: shutdown, restart, sleep, volume, display settings",
+      "category": "system",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["shutdown", "restart", "sleep", "volume", "brightness", "lock screen"],
+      "files": ["system_control.py"],
+      "installed": true
+    },
+    {
+      "id": "system_monitor",
+      "name": "System Monitor",
+      "description": "Real-time system monitoring with CPU, RAM, disk, network, and process tracking",
+      "category": "system",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["monitor system", "real-time cpu", "track process", "performance", "resource usage"],
+      "files": ["system_monitor_skill/SKILL.md", "system_monitor_skill/monitor.py"],
+      "installed": true
+    },
+    {
+      "id": "ontology",
+      "name": "Ontology",
+      "description": "Knowledge representation system with entity-relation graph and type validation",
+      "category": "knowledge",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["create entity", "relate concepts", "query knowledge", "graph", "ontology"],
+      "files": ["ontology_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "tiered_memory",
+      "name": "Tiered Memory",
+      "description": "Multi-tiered memory system managing HOT, WARM, COLD storage for continuous learning",
+      "category": "knowledge",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["memory promote", "memory archive", "memory stats", "tiered storage", "forget"],
+      "files": ["tiered_memory_skill/SKILL.md", "tiered_memory_skill/memory_stats.py"],
+      "installed": true
+    },
+    {
+      "id": "voice",
+      "name": "Voice",
+      "description": "High-fidelity neural speech synthesis using Edge-TTS with mood-aware voice selection",
+      "category": "voice",
+      "version": "1.2.0",
+      "author": "JARVIS Core",
+      "triggers": ["speak", "say", "read aloud", "voice output", "tts", "speech synthesis"],
+      "files": ["voice_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "voice_id",
+      "name": "Voice ID",
+      "description": "Biometric voice identification for securing JARVIS by recognizing unique voice prints",
+      "category": "voice",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["enroll voice", "voice verify", "who is speaking", "voice print", "speaker id"],
+      "files": ["voice_id_skill/SKILL.md"],
+      "installed": true
+    },
+    {
+      "id": "translator",
+      "name": "Translator",
+      "description": "Multi-language translation supporting 100+ languages with auto-detect",
+      "category": "ai",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["translate", "translate to", "language detection", "convert language"],
+      "files": ["translator_skill/SKILL.md", "translator_skill/translator.py"],
+      "installed": true
+    },
+    {
+      "id": "weather",
+      "name": "Weather",
+      "description": "Current weather, forecasts, and severe weather alerts for any location",
+      "category": "data",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["weather", "forecast", "temperature", "rain", "weather alert"],
+      "files": ["weather_skill/SKILL.md", "weather_skill/weather.py"],
+      "installed": true
+    },
+    {
+      "id": "network_tools",
+      "name": "Network Tools",
+      "description": "Network diagnostics: ping, trace route, DNS lookup, port scanning, bandwidth test",
+      "category": "network",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["ping", "trace route", "dns lookup", "port scan", "network test", "bandwidth"],
+      "files": ["network_tools_skill/SKILL.md", "network_tools_skill/network.py"],
+      "installed": true
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "description": "Docker container and image management: list, start, stop, logs, build, compose",
+      "category": "development",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["docker", "container", "docker compose", "docker image", "container logs"],
+      "files": ["docker_skill/SKILL.md", "docker_skill/docker_mgr.py"],
+      "installed": true
+    },
+    {
+      "id": "media",
+      "name": "Media Tools",
+      "description": "Image, audio, and video metadata reading, format conversion, thumbnail generation",
+      "category": "media",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["image info", "convert image", "video metadata", "audio info", "thumbnail"],
+      "files": ["media_skill/SKILL.md", "media_skill/media.py"],
+      "installed": true
+    },
+    {
+      "id": "data_analysis",
+      "name": "Data Analysis",
+      "description": "Analyze CSV, JSON, Excel data with statistics, filtering, aggregation, and visualization",
+      "category": "data",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["analyze data", "csv stats", "json query", "data filter", "chart data", "aggregate"],
+      "files": ["data_analysis_skill/SKILL.md", "data_analysis_skill/analysis.py"],
+      "installed": true
+    },
+    {
+      "id": "news",
+      "name": "News Aggregator",
+      "description": "Fetch and summarize latest news from multiple sources by topic or region",
+      "category": "data",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["news", "headlines", "latest news", "news summary", "top stories"],
+      "files": ["news_skill/SKILL.md", "news_skill/news.py"],
+      "installed": true
+    },
+    {
+      "id": "automation",
+      "name": "Automation",
+      "description": "Schedule and manage automated tasks, cron jobs, and recurring workflows",
+      "category": "automation",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["schedule task", "automate", "cron job", "recurring", "auto run", "workflow"],
+      "files": ["automation_skill/SKILL.md", "automation_skill/automation.py"],
+      "installed": true
+    },
+    {
+      "id": "database",
+      "name": "Database",
+      "description": "SQLite database management: query, create tables, insert, update, export",
+      "category": "data",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["query database", "sql query", "create table", "sqlite", "database"],
+      "files": ["database_skill/SKILL.md", "database_skill/database.py"],
+      "installed": true
+    },
+    {
+      "id": "crypto",
+      "name": "Cryptography",
+      "description": "Hash, encrypt, decrypt, sign, and verify data with multiple algorithms",
+      "category": "development",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["hash", "encrypt", "decrypt", "sign data", "verify signature", "crypto"],
+      "files": ["crypto_skill/SKILL.md", "crypto_skill/crypto.py"],
+      "installed": true
+    },
+    {
+      "id": "email",
+      "name": "Email",
+      "description": "Send, read, search, and manage emails via SMTP/IMAP",
+      "category": "productivity",
+      "version": "1.0.0",
+      "author": "JARVIS Core",
+      "triggers": ["send email", "read inbox", "search email", "compose message", "email"],
+      "files": ["email_skill/SKILL.md", "email_skill/email.py"],
+      "installed": true
+    }
+  ]
+}

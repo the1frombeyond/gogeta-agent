@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Gogeta Documentation
+    url: https://gogeta.ai/docs
+    about: Check the docs first
+  - name: Gogeta Discord
+    url: https://discord.gg/gogeta
+    about: Ask questions here

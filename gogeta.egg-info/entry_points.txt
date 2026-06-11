@@ -1,0 +1,4 @@
+[console_scripts]
+gogeta = gogeta_cli.main:main
+gogeta-acp = acp_adapter.entry:main
+gogeta-agent = run_agent:main
