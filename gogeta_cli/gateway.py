@@ -12225,7 +12225,6 @@ def _maybe_redirect_run_to_s6_supervision(args) -> bool:
     """
 
     no_supervise = getattr(args, "no_supervise", False) or \
-
         os.environ.get("GOGETA_GATEWAY_NO_SUPERVISE", "").lower() in ("1", "true", "yes")
 
     if no_supervise:
