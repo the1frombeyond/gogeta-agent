@@ -131,13 +131,12 @@ function Install-Python {
     if ($LASTEXITCODE -ne 0) { Write-Warn "pip upgrade failed: $result" }
 
     Write-Info "Installing Python dependencies..."
-    $result = & $pip install --no-build-isolation --no-deps -e "$GOGETA_HOME" 2>&1
+    $result = & $pip install -e "$GOGETA_HOME[cli]" 2>&1
     if ($LASTEXITCODE -ne 0) {
-        Write-Warn "pip install (no-deps) failed, trying full install..."
-        $result = & $pip install -e "$GOGETA_HOME" 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Err "pip install failed: $result"
-        }
+        Write-Warn "pip install (core) failed, trying minimal..."
+        $result = & $pip install --no-deps -e "$GOGETA_HOME" 2>&1
+        if ($LASTEXITCODE -ne 0) { Write-Err "pip install failed: $result" }
+        Write-Warn "Run 'pip install -e ""$GOGETA_HOME[cli]""' manually for full support"
     }
 
     if (-not (Test-Path "$GOGETA_HOME\.venv\Scripts\gogeta.exe")) {
