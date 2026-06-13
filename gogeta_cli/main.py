@@ -4924,13 +4924,40 @@ def cmd_whatsapp(args):
 
 def cmd_setup(args):
 
-    """Interactive setup wizard."""
+    """Interactive setup wizard (TypeScript TUI)."""
 
-    from gogeta_cli.setup import run_setup_wizard
+    import subprocess, sys
+    from gogeta_constants import get_gogeta_home
+    from pathlib import Path
 
+    candidates = [
+        get_gogeta_home() / "setup-tui",
+        Path.home() / ".gogeta" / "setup-tui",
+    ]
+    tui_dir = None
+    tui_main = None
+    for d in candidates:
+        m = d / "src" / "index.ts"
+        if m.exists():
+            tui_dir = d
+            tui_main = m
+            break
 
+    if tui_main is None or tui_dir is None:
+        from gogeta_cli.setup import run_setup_wizard
+        run_setup_wizard(args)
+        return
 
-    run_setup_wizard(args)
+    tsx_bin = tui_dir / "node_modules" / ".bin" / "tsx"
+    if sys.platform == "win32":
+        tsx_bin = tui_dir / "node_modules" / ".bin" / "tsx.cmd"
+    if not tsx_bin.exists():
+        from gogeta_cli.setup import run_setup_wizard
+        run_setup_wizard(args)
+        return
+
+    proc = subprocess.run([str(tsx_bin), str(tui_main)], cwd=str(tui_dir))
+    sys.exit(proc.returncode)
 
 
 
