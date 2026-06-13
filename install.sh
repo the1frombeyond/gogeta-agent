@@ -69,6 +69,11 @@ check_prereqs() {
     command -v node >/dev/null 2>&1 || log_err "Node.js not found. Install from https://nodejs.org"
     command -v npm >/dev/null 2>&1 || log_err "npm not found"
     log_ok "Node.js $(node --version) / npm $(npm --version)"
+
+    if npm list -g --depth=0 2>/dev/null | grep -q gogeta; then
+        log_warn "npm global gogeta package found — will shadow this install"
+        log_info "Recommend: npm uninstall -g gogeta-cli-cc"
+    fi
 }
 
 # ── Clone / Update ────────────────────────────────────────────────────────
@@ -81,7 +86,23 @@ install_repo() {
     else
         log_step "Cloning Gogeta repository..."
         rm -rf "$GOGETA_HOME"
-        git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$GOGETA_HOME"
+        sleep 1
+
+        # Retry up to 3 times (network issues are common with large repos)
+        for attempt in 1 2 3; do
+            if [ "$attempt" -gt 1 ]; then
+                log_info "Retry $attempt/3..."
+                sleep 5
+            fi
+            git clone --depth 1 --single-branch --branch "$BRANCH" "$REPO_URL" "$GOGETA_HOME" && break
+            if [ "$attempt" -eq 3 ]; then
+                log_err "Failed to clone after 3 attempts. Check your network."
+            fi
+        done
+
+        if [ ! -f "$GOGETA_HOME/pyproject.toml" ]; then
+            log_err "Clone incomplete — pyproject.toml not found"
+        fi
         log_ok "Repository cloned"
     fi
 }
@@ -93,8 +114,18 @@ install_python() {
         python3 -m venv "$GOGETA_HOME/.venv"
     fi
     source "$GOGETA_HOME/.venv/bin/activate"
-    pip install --upgrade pip -q
-    pip install -e "$GOGETA_HOME" -q
+    log_info "Upgrading pip..."
+    pip install --upgrade pip -q || log_warn "pip upgrade failed"
+
+    log_info "Installing Python dependencies..."
+    if ! pip install --no-build-isolation --no-deps -e "$GOGETA_HOME" 2>/dev/null; then
+        log_warn "Minimal install failed, trying full install..."
+        pip install -e "$GOGETA_HOME" || log_err "pip install failed"
+    fi
+
+    if [ ! -f "$GOGETA_HOME/.venv/bin/gogeta" ]; then
+        log_err "Entry point gogeta not found after pip install"
+    fi
     log_ok "Python dependencies installed"
 }
 
@@ -106,8 +137,8 @@ install_tui() {
     fi
     log_step "Building Terminal UI..."
     cd "$GOGETA_HOME/ui-tui"
-    npm install --silent
-    npm run build
+    npm install --silent || { log_warn "npm install failed, skipping TUI"; cd "$GOGETA_HOME"; return; }
+    npm run build || { log_warn "npm run build failed, skipping TUI"; cd "$GOGETA_HOME"; return; }
     cd "$GOGETA_HOME"
     log_ok "TUI built"
 }

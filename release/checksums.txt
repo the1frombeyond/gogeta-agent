@@ -1,4 +1,5 @@
-cdcdc308ea65e64bad9f616d857844ded33920a99d6ec90dc0dcbe3f59af8917  install.ps1
-9c4568c1b2cfa908f806b0dd50b96cf0164ef4d0d2dec5c255c5fd9ec788fb97  install.sh
-c2c89bb0f03eeddd1a32b3838bbd74664f59000dbdcf5a16f99d937b8385b1b5  scripts/install.ps1
-13df3c97ceb9b37b0d8f0613f6bd69d6645e9063f56fae6c5cfc50ab83a570f2  scripts/install.sh
+; SHA256 hashes for Gogeta Agent installers
+; Generated: 2026-06-13 11:27:16
+
+0a26417251072a7a3435c80f55bc0387066f71bcf9890419d6e36933f3706d07  install.ps1
+1d5c35206993718f19ea85d453536979141c459464ae0bab4e15328ddd0da4f3  install.sh

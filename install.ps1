@@ -35,22 +35,22 @@ $C_DIM   = [char]27 + "[2m"
 function Show-Banner {
     Clear-Host
     Write-Host ""
-    Write-Host "$C_CYAN    ██████╗  ██████╗  ██████╗ ███████╗████████╗ █████╗$C_RESET" -ForegroundColor Cyan
-    Write-Host "$C_CYAN   ██╔════╝ ██╔═══██╗██╔════╝ ██╔════╝╚══██╔══╝██╔══██╗$C_RESET" -ForegroundColor Cyan
-    Write-Host "$C_CYAN   ██║  ███╗██║   ██║██║  ███╗█████╗     ██║   ███████║$C_RESET" -ForegroundColor Cyan
-    Write-Host "$C_CYAN   ██║   ██║██║   ██║██║   ██║██╔══╝     ██║   ██╔══██║$C_RESET" -ForegroundColor Cyan
-    Write-Host "$C_CYAN   ╚██████╔╝╚██████╔╝╚██████╔╝███████╗   ██║   ██║  ██║$C_RESET" -ForegroundColor Cyan
-    Write-Host "$C_CYAN    ╚═════╝  ╚═════╝  ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝$C_RESET" -ForegroundColor Cyan
-    Write-Host "$C_BOLD$C_YEL       The Self-Improving AI Agent — v3.0$C_RESET" -ForegroundColor Yellow
-    Write-Host "$C_DIM       Installing to: $GOGETA_HOME$C_RESET" -ForegroundColor DarkGray
+    Write-Host "$C_CYAN    ██████╗  ██████╗  ██████╗ ███████╗████████╗ █████╗$C_RESET"
+    Write-Host "$C_CYAN   ██╔════╝ ██╔═══██╗██╔════╝ ██╔════╝╚══██╔══╝██╔══██╗$C_RESET"
+    Write-Host "$C_CYAN   ██║  ███╗██║   ██║██║  ███╗█████╗     ██║   ███████║$C_RESET"
+    Write-Host "$C_CYAN   ██║   ██║██║   ██║██║   ██║██╔══╝     ██║   ██╔══██║$C_RESET"
+    Write-Host "$C_CYAN   ╚██████╔╝╚██████╔╝╚██████╔╝███████╗   ██║   ██║  ██║$C_RESET"
+    Write-Host "$C_CYAN    ╚═════╝  ╚═════╝  ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝$C_RESET"
+    Write-Host "$C_BOLD$C_YEL       The Self-Improving AI Agent — v3.0$C_RESET"
+    Write-Host "$C_DIM       Installing to: $GOGETA_HOME$C_RESET"
     Write-Host ""
 }
 
-function Write-Step   { Write-Host "$C_CYAN  ◆$C_RESET $($args[0])$C_RESET" -ForegroundColor White }
-function Write-OK     { Write-Host "$C_GREEN  ✓$C_RESET $($args[0])$C_RESET" -ForegroundColor Green }
-function Write-Info   { Write-Host "$C_BLUE  ℹ$C_RESET $($args[0])$C_RESET" -ForegroundColor Blue }
-function Write-Warn   { Write-Host "$C_YEL  ⚠$C_RESET $($args[0])$C_RESET" -ForegroundColor Yellow }
-function Write-Err    { Write-Host "$C_RED  ✗$C_RESET $($args[0])$C_RESET" -ForegroundColor Red; exit 1 }
+function Write-Step   { Write-Host "$C_CYAN  ◆$C_RESET $($args[0])$C_RESET" }
+function Write-OK     { Write-Host "$C_GREEN  ✓$C_RESET $($args[0])$C_RESET" }
+function Write-Info   { Write-Host "$C_BLUE  ℹ$C_RESET $($args[0])$C_RESET" }
+function Write-Warn   { Write-Host "$C_YEL  ⚠$C_RESET $($args[0])$C_RESET" }
+function Write-Err    { Write-Host "$C_RED  ✗$C_RESET $($args[0])$C_RESET"; exit 1 }
 
 # ── Prerequisites ─────────────────────────────────────────────────────────
 function Check-Prerequisites {
@@ -73,6 +73,13 @@ function Check-Prerequisites {
 
     try { $null = node --version; $null = npm --version; Write-OK "Node.js + npm" }
     catch { Write-Err "Node.js + npm required. Install from https://nodejs.org" }
+
+    # Warn about npm global gogeta conflict
+    $npmGogeta = npm list -g --depth=0 2>$null | Select-String "gogeta"
+    if ($npmGogeta) {
+        Write-Warn "npm global package '$npmGogeta' will shadow gogeta command"
+        Write-Info "We will override it with a .ps1 launcher"
+    }
 }
 
 # ── Clone / Update ────────────────────────────────────────────────────────
@@ -84,8 +91,28 @@ function Install-Repo {
         Write-OK "Repository updated"
     } else {
         Write-Step "Cloning Gogeta repository..."
-        if (Test-Path $GOGETA_HOME) { Remove-Item -Recurse -Force $GOGETA_HOME }
-        git clone --depth 1 --branch $BRANCH $REPO_URL $GOGETA_HOME
+        if (Test-Path $GOGETA_HOME) {
+            Remove-Item -Recurse -Force $GOGETA_HOME -ErrorAction SilentlyContinue
+            Start-Sleep -Milliseconds 500
+        }
+
+        # Retry clone up to 3 times (network issues are common)
+        $cloneOk = $false
+        for ($attempt = 1; $attempt -le 3; $attempt++) {
+            if ($attempt -gt 1) {
+                Write-Info "Retry $attempt/3..."
+                Start-Sleep -Seconds 5
+            }
+            $result = git clone --depth 1 --single-branch --branch $BRANCH $REPO_URL $GOGETA_HOME 2>&1
+            if ($LASTEXITCODE -eq 0 -and (Test-Path "$GOGETA_HOME\pyproject.toml")) {
+                $cloneOk = $true
+                break
+            }
+        }
+
+        if (-not $cloneOk) {
+            Write-Err "Failed to clone repository after 3 attempts. Check your network connection."
+        }
         Write-OK "Repository cloned"
     }
 }
@@ -94,11 +121,28 @@ function Install-Repo {
 function Install-Python {
     Write-Step "Setting up Python virtual environment..."
     if (-not (Test-Path "$GOGETA_HOME\.venv")) {
-        python -m venv "$GOGETA_HOME\.venv"
+        $result = python -m venv "$GOGETA_HOME\.venv" 2>&1
+        if ($LASTEXITCODE -ne 0) { Write-Err "Failed to create venv: $result" }
     }
     $pip = "$GOGETA_HOME\.venv\Scripts\pip.exe"
-    & $pip install --upgrade pip -q
-    & $pip install -e "$GOGETA_HOME" -q
+
+    Write-Info "Upgrading pip..."
+    $result = & $pip install --upgrade pip -q 2>&1
+    if ($LASTEXITCODE -ne 0) { Write-Warn "pip upgrade failed: $result" }
+
+    Write-Info "Installing Python dependencies..."
+    $result = & $pip install --no-build-isolation --no-deps -e "$GOGETA_HOME" 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warn "pip install (no-deps) failed, trying full install..."
+        $result = & $pip install -e "$GOGETA_HOME" 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Err "pip install failed: $result"
+        }
+    }
+
+    if (-not (Test-Path "$GOGETA_HOME\.venv\Scripts\gogeta.exe")) {
+        Write-Err "Entry point gogeta.exe not created after pip install"
+    }
     Write-OK "Python dependencies installed"
 }
 
@@ -108,8 +152,10 @@ function Install-TUI {
     Write-Step "Building Terminal UI..."
     Push-Location "$GOGETA_HOME\ui-tui"
     try {
-        npm install --silent
-        npm run build
+        $result = npm install 2>&1
+        if ($LASTEXITCODE -ne 0) { Write-Warn "npm install failed, skipping TUI"; return }
+        $result = npm run build 2>&1
+        if ($LASTEXITCODE -ne 0) { Write-Warn "npm run build failed, skipping TUI"; return }
         Write-OK "TUI built"
     } finally { Pop-Location }
 }
@@ -118,17 +164,34 @@ function Install-TUI {
 function Install-Launcher {
     Write-Step "Creating launcher..."
     if (-not (Test-Path $GOGETA_BIN)) { New-Item -ItemType Directory -Path $GOGETA_BIN -Force | Out-Null }
-    $launcher = "$GOGETA_BIN\gogeta.cmd"
-    "@echo off
-`"%~dp0..\.venv\Scripts\gogeta.exe`" %*" | Out-File -FilePath $launcher -Encoding ascii
-    Write-OK "Launcher created at $launcher"
+    $exe = "$GOGETA_HOME\.venv\Scripts\gogeta.exe"
 
+    # .cmd launcher (cmd.exe, older PowerShell)
+    $launcherCmd = "$GOGETA_BIN\gogeta.cmd"
+    "@echo off
+`"%~dp0..\.venv\Scripts\gogeta.exe`" %*" | Out-File -FilePath $launcherCmd -Encoding ascii
+
+    # .ps1 launcher (modern PowerShell — overrides npm's gogeta.ps1)
+    $launcherPs1 = "$GOGETA_BIN\gogeta.ps1"
+    "& '$exe' @args" | Out-File -FilePath $launcherPs1 -Encoding utf8
+
+    Write-OK "Launchers created"
+
+    # Add to PATH — insert at front so .gogeta\bin beats npm global dir
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
     if ($currentPath -notlike "*$GOGETA_BIN*") {
         Write-Step "Adding to PATH..."
-        [Environment]::SetEnvironmentVariable("Path", "$currentPath;$GOGETA_BIN", "User")
-        $env:Path = "$env:Path;$GOGETA_BIN"
+        [Environment]::SetEnvironmentVariable("Path", "$GOGETA_BIN;$currentPath", "User")
+        $env:Path = "$GOGETA_BIN;$env:Path"
         Write-OK "Added to PATH"
+    } else {
+        Write-Info "Already in PATH"
+    }
+
+    # Warn if npm gogeta launchers exist
+    $npmDir = "$env:APPDATA\npm"
+    if (Test-Path "$npmDir\gogeta.ps1") {
+        Write-Warn "npm gogeta.ps1 found. Run: Remove-Item '$npmDir\gogeta.ps1' -Force"
     }
 }
 
@@ -145,11 +208,7 @@ function Remove-Unwanted {
     foreach ($item in $unwanted) {
         $path = Join-Path $GOGETA_HOME $item
         if (Test-Path $path) {
-            if (Get-Item $path -ErrorAction SilentlyContinue | Where-Object { $_.PSIsContainer }) {
-                Remove-Item -Recurse -Force $path -ErrorAction SilentlyContinue
-            } else {
-                Remove-Item -Force $path -ErrorAction SilentlyContinue
-            }
+            Remove-Item -Recurse -Force $path -ErrorAction SilentlyContinue
             $removed++
         }
     }
@@ -161,24 +220,29 @@ function Invoke-Setup {
     Write-Host ""
     Write-Step "Starting Gogeta setup wizard..."
     Write-Host ""
+    $python = "$GOGETA_HOME\.venv\Scripts\python.exe"
+    if (-not (Test-Path $python)) {
+        Write-Err "Python not found at $python"
+    }
     Push-Location $GOGETA_HOME
     try {
-        & "$GOGETA_HOME\.venv\Scripts\python.exe" -m gogeta_cli.main setup
+        & $python -m gogeta_cli.main setup
+        if ($LASTEXITCODE -ne 0) { Write-Warn "Setup wizard exited with code $LASTEXITCODE" }
     } finally { Pop-Location }
 }
 
 # ── Success ───────────────────────────────────────────────────────────────
 function Show-Success {
     Write-Host ""
-    Write-Host "$C_GREEN  ╔═══════════════════════════════════════════════╗$C_RESET" -ForegroundColor Green
-    Write-Host "$C_GREEN  ║$C_RESET$C_BOLD$C_YEL      Gogeta Agent installed successfully!     $C_RESET$C_GREEN║$C_RESET" -ForegroundColor Yellow
-    Write-Host "$C_GREEN  ╚═══════════════════════════════════════════════╝$C_RESET" -ForegroundColor Green
+    Write-Host "$C_GREEN  ╔═══════════════════════════════════════════════╗$C_RESET"
+    Write-Host "$C_GREEN  ║$C_RESET$C_BOLD$C_YEL      Gogeta Agent installed successfully!     $C_RESET$C_GREEN║$C_RESET"
+    Write-Host "$C_GREEN  ╚═══════════════════════════════════════════════╝$C_RESET"
     Write-Host ""
     Write-Host "  $C_CYAN Install path:$C_RESET  $GOGETA_HOME"
     Write-Host "  $C_CYAN Command:$C_RESET       gogeta"
     Write-Host "  $C_CYAN TUI:$C_RESET           gogeta --tui"
     Write-Host ""
-    Write-Host "  $C_DIM Run 'gogeta' anytime to chat with your agent.$C_RESET" -ForegroundColor DarkGray
+    Write-Host "  $C_DIM Open a NEW PowerShell window, then run 'gogeta' to chat.$C_RESET"
     Write-Host ""
 }
 
