@@ -148,6 +148,8 @@ def _multi_pick_unix(options, prompt, descriptions, selected, cursor):
         elif ch in ("k",):
             cursor = (cursor - 1) % len(options)
         elif ch in ("\r", "\n"):
+            if not selected:
+                selected.add(cursor)
             break
         elif ch == "\x03":
             raise KeyboardInterrupt
@@ -188,6 +190,8 @@ def _multi_pick_win32(options, prompt, descriptions, selected, cursor):
         elif ch in ("k",):
             cursor = (cursor - 1) % len(options)
         elif ch in ("\r", "\n"):
+            if not selected:
+                selected.add(cursor)
             break
         elif ch == "\x03":
             raise KeyboardInterrupt
