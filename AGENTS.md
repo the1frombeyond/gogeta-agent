@@ -309,7 +309,7 @@ core Gogeta tool that should ship in the base system.
 
 Built-in/core tools require changes in **2 files**:
 
-**1. Create `tools/your_tool.py`:**
+**1. Create `tools/your_tool.py`:**  
 ```python
 import json, os
 from tools.registry import registry
@@ -672,7 +672,7 @@ violate them.
 2. **Tools referenced in SKILL.md prose must be native Gogeta tools or
    MCP servers the skill explicitly expects.** When the skill needs a
    capability, point at the proper tool by name in backticks
-   (`` `terminal` ``, `` `web_extract` ``, `` `read_file` ``,
+   (`` `terminal` ``, `` `web_extract` ``, `` `read_file` ``,  
    `` `patch` ``, `` `search_files` ``, `` `vision_analyze` ``,
    `` `browser_navigate` ``, `` `delegate_task` ``, etc.). Do NOT
    name shell utilities the agent already has wrapped — `grep` →

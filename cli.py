@@ -5399,10 +5399,10 @@ class GsaCLI:
                 )
 
         # Warn if the configured model is a Nous Gogeta LLM (not agentic)
-        from gogeta_cli.model_switch import is_nous_gogeta_non_agentic
+        from gogeta_cli.model_switch import is_nous_hermes_non_agentic
 
         model_name = getattr(self, "model", "") or ""
-        if is_nous_gogeta_non_agentic(model_name):
+        if is_nous_hermes_non_agentic(model_name):
             self._console_print()
             self._console_print(
                 "[bold yellow]⚠  Nous Research Gogeta 3 & 4 models are NOT agentic and are not "

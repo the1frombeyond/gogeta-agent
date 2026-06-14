@@ -123,3 +123,10 @@ scripts/out/
 # stores the published notes. They are not a build artifact and must never be
 # committed to the repo root. See the gogeta-release skill.
 RELEASE_v*.md
+
+# User config
+config.yaml
+bin/
+
+# Auto-generated packaging
+gogeta.egg-info/
