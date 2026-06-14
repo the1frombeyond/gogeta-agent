@@ -1,4 +1,3 @@
-import * as readline from "node:readline";
 import { stdin as _stdin, stdout as _stdout } from "node:process";
 
 export interface MultiPickOptions {
@@ -7,6 +6,13 @@ export interface MultiPickOptions {
   preselect?: Set<number>;
   selectAll?: boolean;
 }
+
+const GOLD = "\x1b[38;2;255;185;15m";
+const CYAN = "\x1b[38;2;0;200;255m";
+const GREEN = "\x1b[38;2;80;220;100m";
+const DIM = "\x1b[2m";
+const BOLD = "\x1b[1m";
+const RESET = "\x1b[22m\x1b[39m";
 
 export async function multiPick(
   options: string[],
@@ -31,7 +37,6 @@ export async function multiPick(
     }
   }
   let cursor = 0;
-  const origMode = _stdin.isRaw;
 
   function restoreStdin(): void {
     try {
@@ -44,28 +49,29 @@ export async function multiPick(
   function render(): void {
     const lines: string[] = [];
 
-    lines.push(`\x1b[2J\x1b[H`);
-    lines.push(`\x1b[1m${prompt}\x1b[22m`);
-    lines.push("");
-
     for (let i = 0; i < displayCount; i++) {
       const isCursor = i === cursor;
-      const mark = selected.has(i) ? "\x1b[32m●\x1b[39m" : "○";
+      const mark = selected.has(i) ? `${GREEN}◆${RESET}` : `${DIM}◇${RESET}`;
       const label = displayLabels[i];
       const desc = displayDescs[i] ?? "";
-      const prefix = isCursor ? "\x1b[33m >\x1b[39m" : "  ";
-      const numTag = `[${i}]`;
-      lines.push(`${prefix} ${mark} ${numTag} \x1b[1m${label}\x1b[22m  \x1b[2m${desc}\x1b[22m`);
+      const prefix = isCursor ? `${GOLD}❯${RESET}` : " ";
+      lines.push(`${prefix} ${mark} ${BOLD}${label}${RESET}  ${DIM}${desc}${RESET}`);
     }
 
-    const count = selected.size - (hasSelectAll && selected.has(0) ? realCount : 0);
+    const count = (() => {
+      let c = 0;
+      for (const idx of selected) {
+        if (hasSelectAll && idx === 0) continue;
+        c++;
+      }
+      return c;
+    })();
     const total = realCount;
-    lines.push("");
-    lines.push(`\x1b[2m${count}/${total} selected\x1b[22m`);
 
+    _stdout.write("\x1b[2J\x1b[H");
+    _stdout.write(`\x1b[1m${prompt}\x1b[22m\n\n`);
     _stdout.write(lines.join("\n"));
-    _stdout.write("\n");
-    _stdout.write(`\x1b[${displayCount + 4}A`);
+    _stdout.write(`\n\n${DIM}↑/↓ navigate · Space toggle · Enter confirm · ${CYAN}a${RESET}${DIM} all/none — ${count}/${total} selected${RESET}\n`);
   }
 
   function toggleAll(): void {
@@ -168,7 +174,6 @@ export async function multiPick(
           render();
           return;
         }
-        buf = Buffer.alloc(0);
         return;
       }
 

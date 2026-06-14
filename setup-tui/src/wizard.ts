@@ -9,6 +9,22 @@ import { stdin, stdout } from "node:process";
 const GOGETA_HOME = path.join(os.homedir(), ".gogeta");
 const CONFIG_PATH = path.join(GOGETA_HOME, "config.yaml");
 
+const GOLD = "\x1b[38;2;255;185;15m";
+const CYAN = "\x1b[38;2;0;200;255m";
+const GREEN = "\x1b[38;2;80;220;100m";
+const RESET = "\x1b[0m";
+const BOLD = "\x1b[1m";
+const DIM = "\x1b[2m";
+
+const BANNER = `
+${GOLD}   ____  ___   ____ _____ _____  _
+  / ___|/ _ \\ / ___| ____|_   _|/ \\
+ | |  _| | | | |  _|  _|   | | / _ \\
+ | |_| | |_| | |_| | |___  | |/ ___ \\
+  \\____|\\___/ \\____|_____| |_/_/   \\_\\ ${RESET}
+${DIM}  ─── self-improving AI agent ───${RESET}
+`.trimStart();
+
 interface SetupConfig {
   provider: string;
   messengers: string[];
@@ -43,7 +59,7 @@ const PROVIDER_DESCS = [
   "Cloud-hosted open models",
   "Claude, Nova, Llama, DeepSeek via AWS",
   "OpenAI or Anthropic endpoint on Azure",
-  "Direct API endpoint (enter URL manually)",
+  "Direct API endpoint",
 ];
 
 const MESSENGERS = [
@@ -113,12 +129,12 @@ const FEATURE_DESCS = [
 ];
 
 function promptForAPIKey(name: string, url: string): Promise<string | null> {
-  stdout.write(`\n\x1b[1m${name} API Key\x1b[22m\n`);
-  stdout.write(`  Get one at: \x1b[4m${url}\x1b[24m\n`);
-  stdout.write(`  Enter key (or leave empty to skip): `);
-
-  const rl = readline.createInterface({ input: stdin, output: stdout });
   return new Promise((resolve) => {
+    stdout.write(`\n${BOLD}${name} API Key${RESET}\n`);
+    stdout.write(`  ${DIM}Get one at: ${CYAN}${url}${RESET}${DIM}${RESET}\n`);
+    stdout.write(`  ${DIM}Enter key (leave empty to skip):${RESET} `);
+
+    const rl = readline.createInterface({ input: stdin, output: stdout });
     rl.question("", (answer) => {
       rl.close();
       resolve(answer.trim() || null);
@@ -128,10 +144,9 @@ function promptForAPIKey(name: string, url: string): Promise<string | null> {
 
 function promptFreeform(promptText: string, def?: string): Promise<string> {
   const defaultStr = def ? ` [${def}]` : "";
-  stdout.write(`\n\x1b[1m${promptText}\x1b[22m${defaultStr}: `);
-
   const rl = readline.createInterface({ input: stdin, output: stdout });
   return new Promise((resolve) => {
+    stdout.write(`\n${BOLD}${promptText}${RESET}${DIM}${defaultStr}${RESET}: `);
     rl.question("", (answer) => {
       rl.close();
       resolve(answer.trim() || def || "");
@@ -139,21 +154,18 @@ function promptFreeform(promptText: string, def?: string): Promise<string> {
   });
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 export async function runSetupWizard(): Promise<SetupConfig> {
   stdout.write("\x1b[2J\x1b[H");
-  stdout.write(`
-\x1b[33m┌──────────────────────────────────────────────────────┐\x1b[39m
-\x1b[33m│           \x1b[1mGogeta Agent Setup Wizard\x1b[22m                │\x1b[39m
-\x1b[33m├──────────────────────────────────────────────────────┤\x1b[39m
-\x1b[33m│  Let's configure your Gogeta Agent installation.     │\x1b[39m
-\x1b[33m│  Press Ctrl+C at any time to exit.                    │\x1b[39m
-\x1b[33m└──────────────────────────────────────────────────────┘\x1b[39m
+  stdout.write(BANNER);
+  stdout.write(`\n${DIM}  Let's get your agent online. Use ${GOLD}↑↓${RESET}${DIM} to navigate, ${GOLD}Space${RESET}${DIM} to toggle, ${GOLD}Enter${RESET}${DIM} to confirm.${RESET}\n`);
+  stdout.write(`  ${DIM}Press ${CYAN}Ctrl+C${RESET}${DIM} at any time to exit.${RESET}\n\n`);
+  await sleep(1000);
 
-`);
-
-  await sleep(800);
-
-  stdout.write(`\x1b[1m\x1b[2mStep 1/4\x1b[22m — Inference Provider\x1b[22m\n\n`);
+  stdout.write(`── ${GOLD}Step 1/4${RESET} ── ${BOLD}Inference Provider${RESET}\n\n`);
   const providerResult = await multiPick(PROVIDERS, {
     prompt: "Choose your primary inference provider:",
     descriptions: PROVIDER_DESCS,
@@ -182,9 +194,8 @@ export async function runSetupWizard(): Promise<SetupConfig> {
     fs.mkdirSync(GOGETA_HOME, { recursive: true });
   }
 
-  stdout.write(`\n\x1b[1m\x1b[2mStep 2/4\x1b[22m — Messaging Platforms\x1b[22m\n\n`);
-  stdout.write(`  Choose which messaging platforms to enable.\n`);
-  stdout.write(`  You'll configure credentials for each one.\n\n`);
+  stdout.write(`\n── ${GOLD}Step 2/4${RESET} ── ${BOLD}Messaging Platforms${RESET}\n\n`);
+  stdout.write(`  ${DIM}Choose which platforms to connect. You'll set up credentials per platform.${RESET}\n\n`);
 
   const messengerResult = await multiPick(MESSENGERS, {
     prompt: "Select messaging platforms:",
@@ -196,14 +207,12 @@ export async function runSetupWizard(): Promise<SetupConfig> {
 
   for (const m of messengers) {
     if (m === "WhatsApp Web") {
-      const setupWw = await promptYesNo("\nSet up WhatsApp Web now?");
-      if (setupWw) {
-        try {
-          const ww = new WhatsAppConnector(GOGETA_HOME);
-          await ww.connect();
-        } catch (e: any) {
-          stdout.write(`  \x1b[31mWhatsApp setup failed: ${e.message}\x1b[39m\n`);
-        }
+      stdout.write(`\n  ${DIM}Setting up WhatsApp Web...${RESET}\n`);
+      try {
+        const ww = new WhatsAppConnector(GOGETA_HOME);
+        await ww.connect();
+      } catch (e: any) {
+        stdout.write(`  \x1b[31m✗ WhatsApp setup failed: ${e.message}\x1b[39m\n`);
       }
     } else {
       const keyUrl = getMessengerKeyUrl(m);
@@ -211,8 +220,8 @@ export async function runSetupWizard(): Promise<SetupConfig> {
     }
   }
 
-  stdout.write(`\n\x1b[1m\x1b[2mStep 3/4\x1b[22m — Features\x1b[22m\n\n`);
-  stdout.write(`  Toggle which capabilities your agent should have.\n\n`);
+  stdout.write(`\n── ${GOLD}Step 3/4${RESET} ── ${BOLD}Features${RESET}\n\n`);
+  stdout.write(`  ${DIM}Toggle which capabilities you want your agent to have.${RESET}\n\n`);
 
   const featureResult = await multiPick(FEATURES, {
     prompt: "Select features to enable:",
@@ -222,17 +231,11 @@ export async function runSetupWizard(): Promise<SetupConfig> {
 
   const features = [...featureResult].map((i) => FEATURES[i]);
 
-  stdout.write(`\n\x1b[1m\x1b[2mStep 4/4\x1b[22m — Lifeline (Emergency Contact)\x1b[22m\n\n`);
-  stdout.write(`  If something goes wrong, who should the agent contact?\n\n`);
+  stdout.write(`\n── ${GOLD}Step 4/4${RESET} ── ${BOLD}Emergency Lifeline${RESET}\n\n`);
+  stdout.write(`  ${DIM}If something goes wrong, how should the agent reach you?${RESET}\n`);
 
-  const lifelinePhone = await promptFreeform(
-    "Emergency phone (SMS)",
-    "",
-  );
-  const lifelineEmail = await promptFreeform(
-    "Emergency email",
-    "",
-  );
+  const lifelinePhone = await promptFreeform("Emergency phone (SMS)", "");
+  const lifelineEmail = await promptFreeform("Emergency email", "");
 
   const config: SetupConfig = {
     provider,
@@ -242,9 +245,13 @@ export async function runSetupWizard(): Promise<SetupConfig> {
   };
 
   saveConfig(config);
-  stdout.write(`\n\x1b[32m✓ Setup complete!\x1b[39m\n`);
-  stdout.write(`  Config saved to: \x1b[2m${CONFIG_PATH}\x1b[22m\n`);
-  stdout.write(`  API keys saved to: \x1b[2m${path.join(GOGETA_HOME, ".env")}\x1b[22m\n\n`);
+
+  stdout.write(`\n${GOLD}  ╔══════════════════════════════════════════╗${RESET}\n`);
+  stdout.write(`${GOLD}  ║           Setup Complete! ${GREEN}✓${RESET}${GOLD}              ║${RESET}\n`);
+  stdout.write(`${GOLD}  ╚══════════════════════════════════════════╝${RESET}\n\n`);
+  stdout.write(`  ${DIM}Config:${RESET} ${CONFIG_PATH}\n`);
+  stdout.write(`  ${DIM}Secrets:${RESET} ${path.join(GOGETA_HOME, ".env")}\n`);
+  stdout.write(`  ${DIM}Run${RESET}  \`gogeta chat\`${DIM} to start a conversation.${RESET}\n\n`);
 
   return config;
 }
@@ -321,18 +328,4 @@ function getMessengerKeyUrl(messenger: string): string {
     "API Server": "http://localhost:8080/docs",
   };
   return urls[messenger] ?? "https://console";
-}
-
-function promptYesNo(question: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({ input: stdin, output: stdout });
-    rl.question(`\x1b[1m${question}\x1b[22m (Y/n): `, (answer) => {
-      rl.close();
-      resolve(answer.trim().toLowerCase() !== "n");
-    });
-  });
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
 }
