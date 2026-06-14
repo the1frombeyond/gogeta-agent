@@ -20,6 +20,8 @@ export async function multiPick(
 ): Promise<Set<number>> {
   const { prompt = "Select", descriptions = [], selectAll = true, preselect } = opts;
 
+  const isSingle = !selectAll;
+
   const hasSelectAll = selectAll && options.length > 1;
   const displayLabels = hasSelectAll
     ? ["[ Select All ]", ...options]
@@ -31,11 +33,15 @@ export async function multiPick(
   const realCount = options.length;
   const displayCount = displayLabels.length;
   const selected = new Set<number>();
-  if (preselect) {
+
+  if (isSingle) {
+    selected.add(0);
+  } else if (preselect) {
     for (const i of preselect) {
       if (i >= 0 && i < realCount) selected.add(i + (hasSelectAll ? 1 : 0));
     }
   }
+
   let cursor = 0;
 
   function restoreStdin(): void {
@@ -67,23 +73,33 @@ export async function multiPick(
       return c;
     })();
     const total = realCount;
+    const hint = isSingle
+      ? `${DIM}↑/↓ navigate · ${GOLD}Space${RESET}${DIM} select · ${GOLD}Enter${RESET}${DIM} confirm${RESET}`
+      : `${DIM}↑/↓ navigate · ${GOLD}Space${RESET}${DIM} toggle · ${GOLD}Enter${RESET}${DIM} confirm · ${CYAN}a${RESET}${DIM} all/none — ${count}/${total} selected${RESET}`;
 
     _stdout.write("\x1b[2J\x1b[H");
     _stdout.write(`\x1b[1m${prompt}\x1b[22m\n\n`);
     _stdout.write(lines.join("\n"));
-    _stdout.write(`\n\n${DIM}↑/↓ navigate · Space toggle · Enter confirm · ${CYAN}a${RESET}${DIM} all/none — ${count}/${total} selected${RESET}\n`);
+    _stdout.write(`\n\n${hint}\n`);
   }
 
   function toggleAll(): void {
-    const allSelected = selected.size === displayCount;
-    if (allSelected) {
-      for (let i = 0; i < displayCount; i++) selected.delete(i);
-    } else {
-      for (let i = 0; i < displayCount; i++) selected.add(i);
+    if (!isSingle) {
+      const allSelected = selected.size === displayCount;
+      if (allSelected) {
+        for (let i = 0; i < displayCount; i++) selected.delete(i);
+      } else {
+        for (let i = 0; i < displayCount; i++) selected.add(i);
+      }
     }
   }
 
   function toggleItem(idx: number): void {
+    if (isSingle) {
+      selected.clear();
+      selected.add(idx);
+      return;
+    }
     if (hasSelectAll && idx === 0) {
       toggleAll();
       return;

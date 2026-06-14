@@ -172,7 +172,7 @@ export async function runSetupWizard(): Promise<SetupConfig> {
     selectAll: false,
   });
 
-  const providerIdx = providerResult.size > 0 ? [...providerResult][0] : 0;
+  const providerIdx = [...providerResult][0];
   const provider = PROVIDERS[providerIdx];
 
   if (provider !== "LM Studio" && provider !== "Ollama") {
