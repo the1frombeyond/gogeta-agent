@@ -237,43 +237,153 @@ def section_identity():
 # ── Provider ───────────────────────────────────────────────────────────────
 
 PROVIDERS = [
-    "Ollama",
-    "OpenRouter",
-    "Anthropic",
-    "OpenAI",
-    "Gemini",
-    "Custom",
+    "NVIDIA NIM (Nemotron models via build.nvidia.com or local NIM)",
+    "OpenRouter (Pay-per-use API aggregator)",
+    "NovitaAI (Cloud: Model API, Agent Sandbox, GPU Cloud)",
+    "LM Studio (Local desktop app with built-in model server)",
+    "Anthropic (Claude models via API key or Claude Code)",
+    "OpenAI (Codex CLI or direct OpenAI API)",
+    "Qwen Cloud / DashScope (Qwen + multi-provider)",
+    "xAI Grok (Direct API or SuperGrok / Premium+ OAuth)",
+    "Xiaomi MiMo (MiMo-V2.5 and V2 models: pro, omni, flash)",
+    "Tencent TokenHub (Hy3 Preview via tokenhub.tencentmaas.com)",
+    "GitHub Copilot (GitHub token API or copilot --acp process)",
+    "Hugging Face Inference Providers",
+    "Google Gemini (AI Studio API or OAuth + Code Assist)",
+    "DeepSeek (V3, R1, coder, direct API)",
+    "Z.AI / GLM (Zhipu direct API)",
+    "Kimi / Moonshot (Coding Plan, Moonshot global & China endpoints)",
+    "StepFun Step Plan (Agent / coding models via Step Plan API)",
+    "MiniMax (Global, OAuth Coding Plan & China endpoints)",
+    "Ollama Cloud (Cloud-hosted open models, ollama.com)",
+    "Arcee AI (Trinity models, direct API)",
+    "GMI Cloud (Multi-model direct API)",
+    "Kilo Code (Kilo Gateway API)",
+    "OpenCode (Zen pay-as-you-go or Go subscription)",
+    "AWS Bedrock (Claude, Nova, Llama, DeepSeek; IAM or API key)",
+    "Azure Foundry (OpenAI-style or Anthropic-style endpoint, your Azure AI deployment)",
+    "Qwen OAuth (Reuses local Qwen CLI login)",
+    "Alibaba Cloud Coding Plan (Dedicated coding tier)",
+    "custom (direct API)",
+    "Custom endpoint (enter URL manually)",
+    "Configure auxiliary models...",
+    "Leave unchanged",
+    "Nous Portal (Everything your agent needs, 300+ models with bundled tool use)",
 ]
 
-PROVIDER_DESCS = [
-    "Local open models via Ollama CLI",
-    "Pay-per-use API aggregator",
-    "Claude models via API key",
-    "GPT models via API key",
-    "Gemini models via AI Studio API",
-    "Direct API endpoint",
-]
+PROVIDER_DESCS = [""] * len(PROVIDERS)
 
 PROVIDER_KEY_URLS = {
+    "NVIDIA NIM": "https://build.nvidia.com/",
     "OpenRouter": "https://openrouter.ai/keys",
+    "NovitaAI": "https://novita.ai/",
     "Anthropic": "https://console.anthropic.com/",
     "OpenAI": "https://platform.openai.com/api-keys",
-    "Gemini": "https://aistudio.google.com/",
+    "Qwen Cloud / DashScope": "https://dashscope.aliyun.com/",
+    "xAI Grok": "https://x.ai/api",
+    "Xiaomi MiMo": "https://mimo.xiaomi.com/",
+    "Tencent TokenHub": "https://tokenhub.tencentmaas.com/",
+    "GitHub Copilot": "https://github.com/settings/tokens",
+    "Hugging Face Inference Providers": "https://huggingface.co/settings/tokens",
+    "Google Gemini": "https://aistudio.google.com/",
+    "DeepSeek": "https://platform.deepseek.com/api_keys",
+    "Z.AI / GLM": "https://open.bigmodel.cn/",
+    "Kimi / Moonshot": "https://platform.moonshot.cn/",
+    "StepFun Step Plan": "https://platform.stepfun.com/",
+    "MiniMax": "https://platform.minimaxi.com/",
+    "Ollama Cloud": "https://ollama.com/cloud",
+    "Arcee AI": "https://arcee.ai/",
+    "GMI Cloud": "https://gmi.cloud/",
+    "Kilo Code": "https://kilo-code.com/",
+    "OpenCode": "https://opencode.ai/",
+    "AWS Bedrock": "https://aws.amazon.com/bedrock/",
+    "Azure Foundry": "https://portal.azure.com/",
+    "Alibaba Cloud Coding Plan": "https://aliyun.com/",
+    "custom": "",
+    "Custom endpoint": "",
+    "Nous Portal": "https://portal.nousresearch.com",
 }
 
 PROVIDER_ENV_VARS = {
+    "NVIDIA NIM": "NVIDIA_API_KEY",
     "OpenRouter": "OPENROUTER_API_KEY",
+    "NovitaAI": "NOVITA_API_KEY",
     "Anthropic": "ANTHROPIC_API_KEY",
     "OpenAI": "OPENAI_API_KEY",
-    "Gemini": "GEMINI_API_KEY",
-    "Custom": "CUSTOM_API_KEY",
+    "Qwen Cloud / DashScope": "QWEN_API_KEY",
+    "xAI Grok": "XAI_API_KEY",
+    "Xiaomi MiMo": "XIAOMI_API_KEY",
+    "Tencent TokenHub": "TENCENT_API_KEY",
+    "GitHub Copilot": "GITHUB_TOKEN",
+    "Hugging Face Inference Providers": "HF_TOKEN",
+    "Google Gemini": "GEMINI_API_KEY",
+    "DeepSeek": "DEEPSEEK_API_KEY",
+    "Z.AI / GLM": "ZHIPU_API_KEY",
+    "Kimi / Moonshot": "MOONSHOT_API_KEY",
+    "StepFun Step Plan": "STEPFUN_API_KEY",
+    "MiniMax": "MINIMAX_API_KEY",
+    "Ollama Cloud": "OLLAMA_CLOUD_API_KEY",
+    "Arcee AI": "ARCEE_API_KEY",
+    "GMI Cloud": "GMI_API_KEY",
+    "Kilo Code": "KILO_CODE_API_KEY",
+    "OpenCode": "OPENCODE_API_KEY",
+    "AWS Bedrock": "AWS_ACCESS_KEY_ID",
+    "Azure Foundry": "AZURE_OPENAI_KEY",
+    "Alibaba Cloud Coding Plan": "ALIBABA_API_KEY",
+    "custom": "CUSTOM_API_KEY",
+    "Custom endpoint": "CUSTOM_ENDPOINT_API_KEY",
+    "Nous Portal": "NOUS_API_KEY",
 }
 
 DEFAULT_MODELS = {
+    "NVIDIA NIM": "nvidia/llama-3.1-nemotron-70b-instruct",
     "OpenRouter": "openrouter/auto",
+    "NovitaAI": "meta-llama/llama-3.1-8b-instruct",
     "Anthropic": "claude-sonnet-4-20250514",
     "OpenAI": "gpt-4o",
-    "Gemini": "gemini-2.5-flash",
+    "Qwen Cloud / DashScope": "qwen-plus",
+    "xAI Grok": "grok-3",
+    "Xiaomi MiMo": "MiMo-V2.5-pro",
+    "Tencent TokenHub": "hy3-preview",
+    "Google Gemini": "gemini-2.5-flash",
+    "DeepSeek": "deepseek-chat",
+    "Z.AI / GLM": "glm-4-plus",
+    "Kimi / Moonshot": "moonshot-v1-8k",
+    "StepFun Step Plan": "step-2-16k",
+    "MiniMax": "MiniMax-M2.5-7b",
+    "Ollama Cloud": "llama3.2:3b",
+    "Arcee AI": "arcee-trine",
+    "GMI Cloud": "gmi-default",
+    "Kilo Code": "kilo-default",
+    "OpenCode": "opencode-zen",
+    "AWS Bedrock": "us.anthropic.claude-sonnet-4-20250514",
+    "Azure Foundry": "gpt-4o",
+    "Alibaba Cloud Coding Plan": "qwen-plus",
+    "custom": "",
+    "Custom endpoint": "",
+    "Nous Portal": "nous-default",
+}
+
+CLOUD_PROVIDERS = {
+    "NVIDIA NIM", "OpenRouter", "NovitaAI", "Anthropic",
+    "OpenAI", "Qwen Cloud / DashScope", "xAI Grok",
+    "Xiaomi MiMo", "Tencent TokenHub",
+    "GitHub Copilot", "Hugging Face Inference Providers",
+    "Google Gemini", "DeepSeek", "Z.AI / GLM",
+    "Kimi / Moonshot", "StepFun Step Plan", "MiniMax",
+    "Ollama Cloud", "Arcee AI", "GMI Cloud", "Kilo Code",
+    "OpenCode", "AWS Bedrock", "Azure Foundry",
+    "Alibaba Cloud Coding Plan", "custom",
+    "Nous Portal",
+}
+
+LOCAL_PROVIDERS = {"LM Studio"}
+
+OAUTH_PROVIDERS = {"Qwen OAuth"}
+
+SPECIAL_PROVIDERS = {
+    "Configure auxiliary models...",
+    "Leave unchanged",
 }
 
 
@@ -302,60 +412,50 @@ def section_provider():
 
     selected = multi_pick(PROVIDERS, "Pick provider", PROVIDER_DESCS, select_all=False)
     if not selected:
-        return "Ollama", None, None, None
+        return "LM Studio", None, None, None
 
     idx = next(iter(selected))
-    provider = PROVIDERS[idx]
+    raw = PROVIDERS[idx]
+    provider = raw.split(" (")[0].strip()
+
     model = None
     api_key = None
     endpoint = None
 
-    if provider == "Ollama":
-        local = detect_ollama_models()
-        if local:
-            print(f"\n  {BOLD}Detected local Ollama models:{RST}")
-            for m in local:
-                print(f"    {DIM}●{RST} {m}")
-            print()
-            if ask_yes_no("Use a detected model?", True):
-                if len(local) == 1:
-                    model = local[0]
-                    print(f"    Using {model}")
-                else:
-                    model = ask("Model name", local[0])
-            else:
-                if ask_yes_no("Pull llama3.2:3b?", True):
-                    pull_ollama_model("llama3.2:3b")
-                    model = "llama3.2:3b"
-        else:
-            print(f"\n  {DIM}No Ollama models detected.{RST}")
-            if ask_yes_no("Pull llama3.2:3b?", True):
-                pull_ollama_model("llama3.2:3b")
-                model = "llama3.2:3b"
-            else:
-                model = ask("Model name", "llama3.2:3b")
+    if provider in SPECIAL_PROVIDERS:
+        return provider, None, None, None
 
-    elif provider == "Custom":
+    if provider in LOCAL_PROVIDERS:
+        return provider, None, None, None
+
+    if provider == "Custom endpoint":
         endpoint = ask("Endpoint URL", "https://api.openai.com/v1")
         model = ask("Model name", "gpt-4o")
         key = ask("API key")
         if key:
             api_key = key
-            _save_env("CUSTOM_API_KEY", key)
+            _save_env("CUSTOM_ENDPOINT_API_KEY", key)
+        return provider, model, api_key, endpoint
 
-    else:
+    if provider in OAUTH_PROVIDERS:
+        print(f"\n  {BOLD}{raw}{RST}")
+        print(f"  {DIM}Reuses local Qwen CLI login. No API key needed.{RST}")
+        return provider, None, None, None
+
+    if provider in CLOUD_PROVIDERS:
         url = PROVIDER_KEY_URLS.get(provider, "https://console")
         env_var = PROVIDER_ENV_VARS.get(provider, "API_KEY")
         default_model = DEFAULT_MODELS.get(provider, "")
-        print(f"\n  {BOLD}{provider}{RST}")
+        print(f"\n  {BOLD}{raw}{RST}")
         print(f"  {DIM}Get an API key at: {CYAN}{url}{RST}")
         key = ask("API key")
         if key:
             api_key = key
             _save_env(env_var, key)
         model = ask("Default model", default_model)
+        return provider, model, api_key, endpoint
 
-    return provider, model, api_key, endpoint
+    return provider, None, None, None
 
 
 # ── Messengers ─────────────────────────────────────────────────────────────
