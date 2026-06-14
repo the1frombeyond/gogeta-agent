@@ -2,6 +2,7 @@
 
 import json
 import os
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -222,63 +223,142 @@ def multi_pick(options, prompt="Select", descriptions=None, preselect=None, sele
     return result
 
 
-# ── Provider data ──────────────────────────────────────────────────────────
+# ── Identity ───────────────────────────────────────────────────────────────
+
+def section_identity():
+    banner()
+    print(f"  {DIM}── Step 1/5 ──{RST} {BOLD}Identity{RST}\n")
+    name = ask("What is your name?")
+    agent_name = ask("What do you want to name your agent?", "GOGETA")
+    print()
+    return name, agent_name
+
+
+# ── Provider ───────────────────────────────────────────────────────────────
 
 PROVIDERS = [
-    "Nous Portal",
-    "OpenRouter",
-    "Anthropic Claude",
-    "OpenAI",
-    "Google Gemini",
-    "DeepSeek",
-    "NVIDIA NIM",
     "Ollama",
-    "AWS Bedrock",
-    "Azure OpenAI",
+    "OpenRouter",
+    "Anthropic",
+    "OpenAI",
+    "Gemini",
     "Custom",
 ]
 
 PROVIDER_DESCS = [
-    "300+ models with bundled tool use",
+    "Local open models via Ollama CLI",
     "Pay-per-use API aggregator",
     "Claude models via API key",
     "GPT models via API key",
     "Gemini models via AI Studio API",
-    "V3, R1, coder models",
-    "Nemotron models via build.nvidia.com",
-    "Local open models via Ollama CLI",
-    "Claude, Nova, Llama via AWS",
-    "OpenAI or Anthropic on Azure",
     "Direct API endpoint",
 ]
 
 PROVIDER_KEY_URLS = {
-    "Nous Portal": "https://portal.nousresearch.com",
     "OpenRouter": "https://openrouter.ai/keys",
-    "Anthropic Claude": "https://console.anthropic.com/",
+    "Anthropic": "https://console.anthropic.com/",
     "OpenAI": "https://platform.openai.com/api-keys",
-    "Google Gemini": "https://aistudio.google.com/",
-    "DeepSeek": "https://platform.deepseek.com/api_keys",
-    "NVIDIA NIM": "https://build.nvidia.com/",
-    "AWS Bedrock": "https://aws.amazon.com/bedrock/",
-    "Azure OpenAI": "https://portal.azure.com/",
-    "Custom": "https://your-api-endpoint/",
+    "Gemini": "https://aistudio.google.com/",
 }
 
 PROVIDER_ENV_VARS = {
-    "Nous Portal": "NOUS_API_KEY",
     "OpenRouter": "OPENROUTER_API_KEY",
-    "Anthropic Claude": "ANTHROPIC_API_KEY",
+    "Anthropic": "ANTHROPIC_API_KEY",
     "OpenAI": "OPENAI_API_KEY",
-    "Google Gemini": "GEMINI_API_KEY",
-    "DeepSeek": "DEEPSEEK_API_KEY",
-    "NVIDIA NIM": "NVIDIA_API_KEY",
-    "AWS Bedrock": "AWS_ACCESS_KEY_ID",
-    "Azure OpenAI": "AZURE_OPENAI_KEY",
+    "Gemini": "GEMINI_API_KEY",
     "Custom": "CUSTOM_API_KEY",
 }
 
-# ── Messenger data ─────────────────────────────────────────────────────────
+DEFAULT_MODELS = {
+    "OpenRouter": "openrouter/auto",
+    "Anthropic": "claude-sonnet-4-20250514",
+    "OpenAI": "gpt-4o",
+    "Gemini": "gemini-2.5-flash",
+}
+
+
+def detect_ollama_models():
+    try:
+        result = subprocess.run(
+            ["ollama", "list"], capture_output=True, text=True, timeout=10
+        )
+        models = []
+        for line in result.stdout.strip().split("\n")[1:]:
+            if line.strip():
+                models.append(line.split()[0])
+        return models
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return []
+
+
+def pull_ollama_model(model="llama3.2:3b"):
+    print(f"\n  Pulling {model}...")
+    subprocess.run(["ollama", "pull", model])
+
+
+def section_provider():
+    banner()
+    print(f"  {DIM}── Step 2/5 ──{RST} {BOLD}Inference Provider{RST}\n")
+
+    selected = multi_pick(PROVIDERS, "Pick provider", PROVIDER_DESCS, select_all=False)
+    if not selected:
+        return "Ollama", None, None, None
+
+    idx = next(iter(selected))
+    provider = PROVIDERS[idx]
+    model = None
+    api_key = None
+    endpoint = None
+
+    if provider == "Ollama":
+        local = detect_ollama_models()
+        if local:
+            print(f"\n  {BOLD}Detected local Ollama models:{RST}")
+            for m in local:
+                print(f"    {DIM}●{RST} {m}")
+            print()
+            if ask_yes_no("Use a detected model?", True):
+                if len(local) == 1:
+                    model = local[0]
+                    print(f"    Using {model}")
+                else:
+                    model = ask("Model name", local[0])
+            else:
+                if ask_yes_no("Pull llama3.2:3b?", True):
+                    pull_ollama_model("llama3.2:3b")
+                    model = "llama3.2:3b"
+        else:
+            print(f"\n  {DIM}No Ollama models detected.{RST}")
+            if ask_yes_no("Pull llama3.2:3b?", True):
+                pull_ollama_model("llama3.2:3b")
+                model = "llama3.2:3b"
+            else:
+                model = ask("Model name", "llama3.2:3b")
+
+    elif provider == "Custom":
+        endpoint = ask("Endpoint URL", "https://api.openai.com/v1")
+        model = ask("Model name", "gpt-4o")
+        key = ask("API key")
+        if key:
+            api_key = key
+            _save_env("CUSTOM_API_KEY", key)
+
+    else:
+        url = PROVIDER_KEY_URLS.get(provider, "https://console")
+        env_var = PROVIDER_ENV_VARS.get(provider, "API_KEY")
+        default_model = DEFAULT_MODELS.get(provider, "")
+        print(f"\n  {BOLD}{provider}{RST}")
+        print(f"  {DIM}Get an API key at: {CYAN}{url}{RST}")
+        key = ask("API key")
+        if key:
+            api_key = key
+            _save_env(env_var, key)
+        model = ask("Default model", default_model)
+
+    return provider, model, api_key, endpoint
+
+
+# ── Messengers ─────────────────────────────────────────────────────────────
 
 MESSENGER_APPS = [
     "WhatsApp (WhatsApp Web - no API key needed)",
@@ -304,67 +384,10 @@ MESSENGER_DESCS = [
     "Send and receive via IMAP/SMTP",
 ]
 
-# ── Feature data ───────────────────────────────────────────────────────────
-
-FEATURES = [
-    "Web Search",
-    "File System",
-    "Code Execution",
-    "Vision & Images",
-    "Memory",
-    "Web Browsing",
-    "Voice / TTS",
-    "Cron Jobs",
-    "Delegation",
-    "Git Integration",
-    "Knowledge Base",
-    "Plugin System",
-]
-
-FEATURE_DESCS = [
-    "Search the web for real-time information",
-    "Read, write, and manage files",
-    "Run Python, Node, shell, and compiled code",
-    "Analyze images and generate visuals",
-    "Persist context across sessions",
-    "Interactive browser automation",
-    "Text-to-speech and speech-to-text",
-    "Schedule recurring agent tasks",
-    "Spawn sub-agents for parallel work",
-    "Commit, diff, and manage repos",
-    "Load custom skills and reference docs",
-    "Extend with community plugins",
-]
-
-
-# ── Section: Provider ──────────────────────────────────────────────────────
-
-def section_provider():
-    print(f"  {DIM}── Step 1/4 ──{RST} {BOLD}Inference Provider{RST}\n")
-    selected = multi_pick(PROVIDERS, "Choose your primary inference provider",
-                          PROVIDER_DESCS, preselect=[0], select_all=False)
-    if not selected:
-        return PROVIDERS[0]
-    idx = next(iter(selected))
-    provider = PROVIDERS[idx]
-
-    if provider not in ("Ollama", "LM Studio"):
-        url = PROVIDER_KEY_URLS.get(provider, "https://console")
-        env_var = PROVIDER_ENV_VARS.get(provider, "API_KEY")
-        print(f"\n  {BOLD}{provider} API Key{RST}")
-        print(f"  {DIM}Get one at: {CYAN}{url}{RST}")
-        key = ask("Enter API key")
-        if key:
-            _save_env(env_var, key)
-
-    return provider
-
-
-# ── Section: Messaging ─────────────────────────────────────────────────────
 
 def section_messaging():
-    print(f"  {DIM}── Step 2/4 ──{RST} {BOLD}Messaging Platforms{RST}\n")
-    print(f"  {DIM}Enable GOGETA on your messaging platforms.{RST}\n")
+    banner()
+    print(f"  {DIM}── Step 3/5 ──{RST} {BOLD}Messaging Platforms{RST}\n")
 
     selected = multi_pick(MESSENGER_APPS, "Select messengers", MESSENGER_DESCS)
     enabled = []
@@ -375,10 +398,43 @@ def section_messaging():
         enabled.append(short)
         print(f"\n  Configuring {name}:")
 
-        if "slack" in short:
+        if "telegram" in short:
+            token = ask("  Bot token (from @BotFather)?")
+            if token:
+                _save_env("TELEGRAM_BOT_TOKEN", token)
+
+        elif "discord" in short:
+            token = ask("  Bot token?")
+            if token:
+                _save_env("DISCORD_BOT_TOKEN", token)
+
+        elif "slack" in short:
             token = ask("  Bot Token (xoxb-...)?")
             if token:
                 _save_env("SLACK_BOT_TOKEN", token)
+
+        elif "signal" in short:
+            phone = ask("  Phone number (E.164)?", "+1234567890")
+            if phone:
+                _set_config(["messengers", "signal", "phone"], phone)
+
+        elif "matrix" in short:
+            homeserver = ask("  Homeserver URL?", "https://matrix.org")
+            user = ask("  Username?")
+            if homeserver:
+                _set_config(["messengers", "matrix", "homeserver"], homeserver)
+
+        elif "whatsapp" in short:
+            print("    WhatsApp Web Setup (no API key needed):")
+            print("    Uses Playwright to automate WhatsApp Web.")
+            print("    On first connect, a QR code appears.")
+            if ask_yes_no("    Install Playwright + Chromium now?", True):
+                _install_playwright()
+
+        elif "twitter" in short or "x" in short:
+            token = ask("  Bearer token?")
+            if token:
+                _save_env("TWITTER_BEARER_TOKEN", token)
 
         elif "email" in short:
             imap = ask("  IMAP server?", "imap.gmail.com")
@@ -389,52 +445,95 @@ def section_messaging():
             if pwd:
                 _save_env("EMAIL_APP_PASSWORD", pwd)
 
-        elif "telegram" in short:
-            token = ask("  Bot token (from @BotFather)?")
-            if token:
-                _save_env("TELEGRAM_BOT_TOKEN", token)
-
-        elif "discord" in short:
-            token = ask("  Bot token?")
-            if token:
-                _save_env("DISCORD_BOT_TOKEN", token)
-
-        elif "twitter" in short or "x" in short:
-            token = ask("  Bearer token?")
-            if token:
-                _save_env("TWITTER_BEARER_TOKEN", token)
-
-        elif "whatsapp" in short:
-            print(f"    WhatsApp Web Setup (no API key needed):")
-            print(f"    Uses Playwright to automate WhatsApp Web.")
-            print(f"    On first connect, a QR code appears.")
-            if ask_yes_no("    Install Playwright + Chromium now?", True):
-                _install_playwright()
+        elif "imessage" in short:
+            print("    iMessage uses macOS bridge.")
+            print("    No API key needed on macOS.")
 
     if enabled:
         print(f"\n  {GREEN}Messengers enabled:{RST} {', '.join(enabled)}")
     return enabled
 
 
-# ── Section: Features ──────────────────────────────────────────────────────
+# ── North Star Features ────────────────────────────────────────────────────
+
+NORTH_STAR_FEATURES = [
+    "Architecture Enforcement",
+    "Cost Intelligence",
+    "Quality Gates",
+    "Autonomous Improvement",
+    "Smart Routing",
+]
+
+NORTH_STAR_DESCS = [
+    "Enforce coding standards and patterns automatically",
+    "Optimize spend with model routing and budget tracking",
+    "Automated testing gates before every commit/merge",
+    "Self-improvement loop that learns from past sessions",
+    "Route tasks to the best model for each job",
+]
+
 
 def section_features():
-    print(f"  {DIM}── Step 3/4 ──{RST} {BOLD}Features{RST}\n")
-    print(f"  {DIM}Toggle which capabilities you want your agent to have.{RST}\n")
+    banner()
+    print(f"  {DIM}── Step 4/5 ──{RST} {BOLD}North Star Features{RST}\n")
+    print(f"  {DIM}Pick the agent's core capabilities.{RST}\n")
 
-    selected = multi_pick(FEATURES, "Select features to enable", FEATURE_DESCS)
-    features = [FEATURES[i] for i in sorted(selected)]
-    return features
+    selected = multi_pick(NORTH_STAR_FEATURES, "Select North Star features", NORTH_STAR_DESCS)
+    features = [NORTH_STAR_FEATURES[i] for i in sorted(selected)]
+
+    print()
+    extras = {}
+    extras["vision"] = ask_yes_no("  Enable vision (screen parsing)?", True)
+    extras["voice"] = ask_yes_no("  Enable voice engine?", False)
+    extras["auto_pilot"] = ask_yes_no("  Enable auto-pilot by default?", False)
+    extras["memory"] = ask_yes_no("  Enable persistent memory engines?", True)
+    extras["self_improve"] = ask_yes_no("  Enable self-improvement loop?", True)
+
+    return features, extras
 
 
-# ── Section: Lifeline ──────────────────────────────────────────────────────
+# ── Lifeline / Soul ────────────────────────────────────────────────────────
+
+PERSONALITY_QUESTIONS = [
+    ("Tone", "How should the agent speak to you?",
+     ["Direct and concise", "Friendly and warm", "Professional and formal", "Witty and sarcastic"]),
+    ("Boundaries", "How much autonomy should the agent have?",
+     ["Ask before everything", "Suggest then act", "Act then report", "Full autonomy"]),
+    ("Expertise", "What domain should the agent specialize in?",
+     ["General purpose", "Software engineering", "Data science", "DevOps", "Research"]),
+    ("Risk", "How risk-tolerant should the agent be?",
+     ["Extremely cautious", "Moderate caution", "Balanced", "Take calculated risks"]),
+]
+
+
+def pick_from_list(prompt_text, options):
+    print(f"\n  {BOLD}{prompt_text}{RST}")
+    for i, opt in enumerate(options):
+        print(f"    [{i+1}] {opt}")
+    val = input(f"  {DIM}Choice [1-{len(options)}]{RST}: ").strip()
+    try:
+        idx = int(val) - 1
+        if 0 <= idx < len(options):
+            return options[idx]
+    except ValueError:
+        pass
+    return options[0]
+
 
 def section_lifeline():
-    print(f"  {DIM}── Step 4/4 ──{RST} {BOLD}Emergency Lifeline{RST}\n")
-    print(f"  {DIM}If something goes wrong, how should the agent reach you?{RST}\n")
-    phone = ask("Emergency phone (SMS)", "")
-    email = ask("Emergency email", "")
-    return phone or email or "none"
+    banner()
+    print(f"  {DIM}── Step 5/5 ──{RST} {BOLD}Agent Personality & Lifeline{RST}\n")
+    print(f"  {DIM}Set up how the agent should behave and how it reaches you.{RST}\n")
+
+    soul = {}
+    for key, question, options in PERSONALITY_QUESTIONS:
+        soul[key.lower()] = pick_from_list(question, options)
+
+    print(f"\n  {DIM}Emergency contact (lifeline):{RST}")
+    phone = ask("  Phone (SMS)", "")
+    email = ask("  Email", "")
+
+    return soul, phone or email or "none"
 
 
 # ── Config persistence ─────────────────────────────────────────────────────
@@ -472,31 +571,55 @@ def _set_config(keys, value):
     config_path.write_text(json.dumps(data, indent=2))
 
 
-def write_config(provider, messengers, features, lifeline):
+def write_config(provider, model, endpoint, messengers, features, extras, soul, lifeline, user_name, agent_name):
     home = _get_gogeta_home()
     home.mkdir(parents=True, exist_ok=True)
 
-    yaml = [
+    lines = [
         "# GOGETA Agent Configuration",
         f"# Generated by setup wizard",
         "",
+        "agent:",
+        f'  name: "{agent_name}"',
+        "",
+        "user:",
+        f'  name: "{user_name}"',
+        "",
         "provider:",
         f'  name: "{provider}"',
-        "",
-        "messengers:",
     ]
+    if model:
+        lines.append(f'  model: "{model}"')
+    if endpoint:
+        lines.append(f'  endpoint: "{endpoint}"')
+    lines.append("")
+    lines.append("messengers:")
     for m in messengers:
-        yaml.append(f'  - "{m}"')
-    yaml.append("")
-    yaml.append("features:")
+        lines.append(f'  - "{m}"')
+    lines.append("")
+    lines.append("features:")
     for f in features:
-        yaml.append(f'  - "{f.lower().replace(chr(32), chr(95))}"')
-    yaml.append("")
-    yaml.append(f'lifeline: "{lifeline}"')
-    yaml.append("")
+        lines.append(f'  - "{f.lower().replace(chr(32), chr(95))}"')
+    if extras.get("vision"):
+        lines.append('  - "vision"')
+    if extras.get("voice"):
+        lines.append('  - "voice"')
+    if extras.get("auto_pilot"):
+        lines.append('  - "auto_pilot"')
+    if extras.get("memory"):
+        lines.append('  - "memory"')
+    if extras.get("self_improve"):
+        lines.append('  - "self_improvement_loop"')
+    lines.append("")
+    lines.append("personality:")
+    for key, val in soul.items():
+        lines.append(f'  {key}: "{val}"')
+    lines.append("")
+    lines.append(f'lifeline: "{lifeline}"')
+    lines.append("")
 
     config_path = home / "config.yaml"
-    config_path.write_text("\n".join(yaml), encoding="utf-8")
+    config_path.write_text("\n".join(lines), encoding="utf-8")
     return config_path
 
 
@@ -504,42 +627,49 @@ def write_config(provider, messengers, features, lifeline):
 
 def _install_playwright():
     try:
-        import playwright
+        import playwright  # noqa: F401
     except ImportError:
         print("    Installing playwright...")
-        import subprocess
         subprocess.check_call([sys.executable, "-m", "pip", "install", "playwright"])
     print("    Installing Chromium browser...")
-    import subprocess
     subprocess.check_call([sys.executable, "-m", "playwright", "install", "chromium"])
     print(f"    {GREEN}Playwright + Chromium installed{RST}")
 
 
 # ── Summary ────────────────────────────────────────────────────────────────
 
-def summary(provider, messengers, features, lifeline, config_path):
-    clear()
-    print(f"{GOLD}{GOGETA_ART}{RST}")
-    print(f"{GREEN}  Setup Complete!{RST}\n")
-    print(f"  {BOLD}Provider:{RST}    {provider}")
-    print(f"  {BOLD}Messengers:{RST}   {', '.join(messengers) if messengers else 'none'}")
-    print(f"  {BOLD}Features:{RST}     {len(features)} enabled")
-    print(f"  {BOLD}Lifeline:{RST}     {lifeline}")
-    print(f"\n  {DIM}Config:{RST} {config_path}")
-    print(f"  {DIM}Secrets:{RST} {_get_gogeta_home() / '.env'}")
-    print(f"  {DIM}Run{RST}   `gogeta chat`{DIM} to start.{RST}\n")
-
-
-# ── Entry point ────────────────────────────────────────────────────────────
-
 def run():
     try:
-        provider = section_provider()
+        user_name, agent_name = section_identity()
+
+        provider, model, api_key, endpoint = section_provider()
+
         messengers = section_messaging()
-        features = section_features()
-        lifeline = section_lifeline()
-        config_path = write_config(provider, messengers, features, lifeline)
-        summary(provider, messengers, features, lifeline, config_path)
+
+        features, extras = section_features()
+
+        soul, lifeline = section_lifeline()
+
+        config_path = write_config(
+            provider, model, endpoint,
+            messengers, features, extras,
+            soul, lifeline, user_name, agent_name,
+        )
+
+        clear()
+        print(f"{GOLD}{GOGETA_ART}{RST}")
+        print(f"{GREEN}  Setup Complete!{RST}\n")
+        print(f"  {BOLD}Agent:{RST}       {agent_name}")
+        print(f"  {BOLD}User:{RST}        {user_name}")
+        print(f"  {BOLD}Provider:{RST}    {provider}")
+        if model:
+            print(f"  {BOLD}Model:{RST}       {model}")
+        print(f"  {BOLD}Messengers:{RST}   {', '.join(messengers) if messengers else 'none'}")
+        print(f"  {BOLD}Features:{RST}     {len(features)} north star + {' '.join(k for k, v in extras.items() if v)}")
+        print(f"\n  {DIM}Config:{RST} {config_path}")
+        print(f"  {DIM}Secrets:{RST} {_get_gogeta_home() / '.env'}")
+        print(f"  {DIM}Run{RST}   `gogeta chat`{DIM} to start.{RST}\n")
+
     except KeyboardInterrupt:
         clear()
         print(f"\n  {DIM}Setup cancelled.{RST}\n")
